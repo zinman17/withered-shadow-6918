@@ -1,0 +1,458 @@
+@font-face {
+    font-family: 'Comic Neue';
+    src: url('../fonts/ComicNeue-Regular.woff2') format('woff2'),
+         url('../fonts/ComicNeue-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Comic Neue';
+    src: url('../fonts/ComicNeue-Bold.woff2') format('woff2'),
+         url('../fonts/ComicNeue-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Comic Neue';
+    src: url('../fonts/ComicNeue-Italic.woff2') format('woff2'),
+         url('../fonts/ComicNeue-Italic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Comic Neue';
+    src: url('../fonts/ComicNeue-BoldItalic.woff2') format('woff2'),
+         url('../fonts/ComicNeue-BoldItalic.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+    font-display: swap;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #6ea5ee;
+    font-family: 'Comic Neue', Verdana, Arial, sans-serif;
+}
+
+#GameClient {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    font-family: 'Comic Neue', Verdana, Arial, sans-serif;
+    user-select: none;
+}
+
+#GameClient canvas {
+    display: block;
+}
+
+#GameLoading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #6ea5ee;
+    text-align: center;
+    z-index: 40;
+}
+
+#GameLoading p {
+    margin-top: 200px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+#GameError {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    text-align: center;
+    z-index: 39;
+}
+
+#GameErrorBox {
+    margin-top: 180px;
+    display: inline-block;
+    background: #ffffff;
+    border: 2px solid #000000;
+    padding: 14px 22px;
+    font-size: 13px;
+    color: #000000;
+}
+
+#GameErrorBox a {
+    color: #0d69ac;
+}
+
+#GameErrorBox p {
+    margin: 6px 0;
+}
+
+#TopBar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 44px;
+    background: rgba(120, 120, 120, 0.7);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 8px;
+    z-index: 30;
+}
+
+#TopBar button {
+    width: 34px;
+    height: 34px;
+    background: rgba(0, 0, 0, 0.18);
+    border: 0;
+    padding: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#TopBar button:hover {
+    background: rgba(0, 0, 0, 0.32);
+}
+
+#TopBar button img {
+    display: block;
+    pointer-events: none;
+}
+
+#TopBrand {
+    margin-left: 10px;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.45);
+}
+
+#ChatPanel {
+    position: fixed;
+    top: 50px;
+    left: 8px;
+    width: 380px;
+    max-width: 72vw;
+    display: block;
+    z-index: 29;
+}
+
+#ChatLog {
+    height: 188px;
+    background: rgba(120, 120, 120, 0.7);
+    overflow-y: auto;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #ffffff;
+    box-sizing: border-box;
+}
+
+#ChatLine {
+    margin: 2px 0;
+    word-wrap: break-word;
+}
+
+#ChatUser {
+    font-weight: bold;
+}
+
+#ChatForm {
+    display: flex;
+    margin: 4px 0 0;
+    background: rgba(120, 120, 120, 0.7);
+    height: 32px;
+}
+
+#ChatBox {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: none;
+    padding: 0 8px;
+    font-size: 13px;
+    font-family: 'Comic Neue', Verdana, Arial, sans-serif;
+    background: rgba(0, 0, 0, 0.12);
+    color: #ffffff;
+    height: 32px;
+    line-height: 32px;
+    box-sizing: border-box;
+}
+
+#ChatBox::placeholder {
+    color: rgba(255, 255, 255, 0.75);
+}
+
+#ChatSend {
+    border: 0;
+    padding: 0 14px;
+    font-size: 13px;
+    font-weight: bold;
+    font-family: 'Comic Neue', Verdana, Arial, sans-serif;
+    background: rgba(0, 0, 0, 0.18);
+    color: #ffffff;
+    cursor: pointer;
+}
+
+#ChatSend:hover {
+    background: rgba(0, 0, 0, 0.32);
+}
+
+#PlayerList {
+    position: fixed;
+    top: 50px;
+    right: 8px;
+    width: 150px;
+    background: rgba(120, 120, 120, 0.7);
+    border: 0;
+    border-radius: 0;
+    z-index: 28;
+    font-family: 'Comic Neue', Verdana, Arial, sans-serif;
+}
+
+#PlayerListHead {
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #ffffff;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+#PlayerRows {
+    list-style: none;
+    margin: 0;
+    padding: 2px 8px 4px;
+    max-height: 38vh;
+    overflow-y: auto;
+}
+
+#PlayerRows li {
+    font-size: 12px;
+    color: #ffffff;
+    line-height: 17px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#HealthBox {
+    position: fixed;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 28;
+    font-family: 'Comic Neue', Verdana, Arial, sans-serif;
+}
+
+#UseButton {
+    width: 58px;
+    height: 34px;
+    background: rgba(240, 200, 60, 0.92);
+    border: 2px solid #4a3c00;
+    color: #221a00;
+    font-family: 'Comic Neue', Verdana, Arial, sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    display: none;
+}
+
+#UseButton:hover {
+    background: rgba(250, 220, 100, 0.98);
+}
+
+#HealthBar {
+    width: 180px;
+    height: 16px;
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(0, 0, 0, 0.55);
+}
+
+#HealthFill {
+    width: 100%;
+    height: 100%;
+    background: #35c42b;
+}
+
+#HealthLabel {
+    position: fixed;
+    right: 12px;
+    top: calc(50% + 12px);
+    width: 180px;
+    text-align: center;
+    color: #0f52ba;
+    font-size: 15px;
+    font-weight: bold;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.65);
+    z-index: 28;
+    font-family: 'Comic Neue', Verdana, Arial, sans-serif;
+}
+
+#Crosshair {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    width: 7px;
+    height: 7px;
+    margin: -4px 0 0 -4px;
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.75);
+    border-radius: 50%;
+    display: none;
+    pointer-events: none;
+    z-index: 27;
+}
+
+#Hotbar {
+    position: fixed;
+    left: 50%;
+    bottom: 26px;
+    transform: translateX(-50%);
+    display: none;
+    gap: 6px;
+    z-index: 28;
+    font-family: 'Comic Neue', Verdana, Arial, sans-serif;
+}
+
+.HotSlot {
+    min-width: 88px;
+    height: 38px;
+    padding: 0 10px;
+    background: rgba(120, 120, 120, 0.7);
+    border: 2px solid rgba(30, 30, 30, 0.55);
+    border-radius: 0;
+    color: #ffffff;
+    font-family: 'Comic Neue', Verdana, Arial, sans-serif;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.HotSlot:hover {
+    background: rgba(140, 140, 140, 0.8);
+}
+
+.HotSlot.HotOn {
+    background: rgba(240, 200, 60, 0.92);
+    border-color: #4a3c00;
+    color: #221a00;
+}
+
+.HotKey {
+    display: inline-block;
+    min-width: 15px;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.3);
+    font-size: 11px;
+    padding: 1px 3px;
+}
+
+.HotSlot.HotOn .HotKey {
+    background: rgba(0, 0, 0, 0.35);
+    color: #f6e6a8;
+}
+
+.HotName {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 70px;
+}
+
+#GuiLayer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    pointer-events: none;
+    z-index: 26;
+}
+
+.GuiBtn {
+    position: absolute;
+    background: rgba(120, 120, 120, 0.75);
+    border: 2px solid rgba(30, 30, 30, 0.55);
+    color: #ffffff;
+    font-family: 'Comic Neue', Verdana, Arial, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    pointer-events: auto;
+    overflow: hidden;
+}
+
+.GuiBtn:hover {
+    filter: brightness(1.12);
+}
+
+#TouchControls {
+    display: none;
+}
+
+#GameClient.Touch #TouchControls {
+    display: block;
+}
+
+#Thumbstick {
+    position: absolute;
+    bottom: 22px;
+    left: 18px;
+    width: 132px;
+    height: 132px;
+    background: url(../img/stick.png) center / contain no-repeat;
+    touch-action: none;
+    z-index: 25;
+}
+
+#ThumbKnob {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 46%;
+    height: 46%;
+    margin: -23% 0 0 -23%;
+    background: rgba(130, 130, 130, 0.85);
+    border: 2px solid rgba(70, 70, 70, 0.6);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+#JumpButton {
+    position: absolute;
+    bottom: 22px;
+    right: 18px;
+    width: 118px;
+    height: 102px;
+    background: url(../img/jump.png) center / contain no-repeat;
+    border: 0;
+    padding: 0;
+    touch-action: none;
+    z-index: 25;
+}

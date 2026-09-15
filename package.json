@@ -1,0 +1,15 @@
+{
+  "name": "wallofbricks",
+  "version": "1.0.0",
+  "private": true,
+  "description": "WallOfBricks on Cloudflare Workers",
+  "scripts": {
+    "dev": "node dev-server.js",
+    "deploy": "wrangler deploy",
+    "db-local": "wrangler d1 execute wob --local --file=./schema.sql",
+    "db-remote": "wrangler d1 execute wob --remote --file=./schema.sql"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

@@ -1,0 +1,552 @@
+@font-face
+{
+        font-family: 'Comic Neue';
+        src: url('../fonts/ComicNeue-Regular.woff2') format('woff2'),
+             url('../fonts/ComicNeue-Regular.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+}
+
+@font-face
+{
+        font-family: 'Comic Neue';
+        src: url('../fonts/ComicNeue-Bold.woff2') format('woff2'),
+             url('../fonts/ComicNeue-Bold.ttf') format('truetype');
+        font-weight: bold;
+        font-style: normal;
+        font-display: swap;
+}
+
+@font-face
+{
+        font-family: 'Comic Neue';
+        src: url('../fonts/ComicNeue-Italic.woff2') format('woff2'),
+             url('../fonts/ComicNeue-Italic.ttf') format('truetype');
+        font-weight: normal;
+        font-style: italic;
+        font-display: swap;
+}
+
+@font-face
+{
+        font-family: 'Comic Neue';
+        src: url('../fonts/ComicNeue-BoldItalic.woff2') format('woff2'),
+             url('../fonts/ComicNeue-BoldItalic.ttf') format('truetype');
+        font-weight: bold;
+        font-style: italic;
+        font-display: swap;
+}
+
+html, body
+{
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+}
+
+body
+{
+        font: normal 10pt/1.5 'Comic Neue', 'Comic Sans MS', Verdana, sans-serif;
+        color: #10151a;
+        margin: 0;
+        padding: 0 0 12px 0;
+        background: #8ec3e8 url('../images/sky_wob.jpg') no-repeat fixed center top / cover;
+}
+
+h1, h2, h3, h4
+{
+        margin: 8px 0;
+        font-weight: bold;
+}
+
+a
+{
+        color: #0000cc;
+        text-decoration: none;
+}
+
+.bottombar a:hover, .Flash a:hover
+{
+        text-decoration: underline;
+}
+
+.masthead
+{
+        position: relative;
+        background: #aed0ee;
+        text-align: center;
+        overflow: hidden;
+}
+
+.masthead .homelink
+{
+        display: inline-block;
+}
+
+.masthead .logo
+{
+        height: 84px;
+        margin: 6px 0;
+        vertical-align: middle;
+}
+
+.navstrip
+{
+        position: relative;
+        background: #00a2e3;
+        text-align: center;
+        padding: 2px 0;
+}
+
+.navstrip a, .navstrip a:link, .navstrip a:visited, .navstrip a:active
+{
+        color: #ffffff;
+        text-decoration: none;
+        display: inline-block;
+        padding: 6px 12px;
+        font-size: 17px;
+}
+
+.navstrip a:hover
+{
+        text-decoration: underline;
+}
+
+.navstrip .pipe
+{
+        color: #c9ecfb;
+}
+
+.navstrip button.linklike
+{
+        background: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+        color: #ffffff;
+        font: inherit;
+        font-size: 17px;
+        cursor: pointer;
+        text-decoration: none;
+}
+
+.navstrip button.linklike:hover
+{
+        text-decoration: underline;
+}
+
+.navauth
+{
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        white-space: nowrap;
+}
+
+.navauth a, .navauth a:link, .navauth a:visited, .navauth a:active
+{
+        color: #ffffff;
+        font-weight: bold;
+        font-size: 15px;
+        padding: 4px 8px;
+}
+
+.navauth .pipe
+{
+        color: #c9ecfb;
+}
+
+.navauth button.linklike
+{
+        font-size: 15px;
+        font-weight: bold;
+}
+
+.inlineform
+{
+        display: inline;
+        margin: 0;
+}
+
+.sitefoot
+{
+        text-align: center;
+        color: #1c3d5a;
+        font-size: 8.5pt;
+        margin: 22px 0 4px 0;
+        text-shadow: 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+.bottombar
+{
+        background: #ffffff;
+        border: 2px solid #000000;
+        max-width: 900px;
+        margin: 0 auto 16px auto;
+        padding: 12px 18px;
+}
+
+.panel
+{
+        padding: 12px 18px;
+        margin: 0 auto 16px auto;
+}
+
+.bottombar > h2:first-child, .bottombar > h3:first-child
+{
+        border-bottom: 1px solid #999999;
+        padding-bottom: 6px;
+}
+
+.center
+{
+        text-align: center;
+}
+
+.Button
+{
+        cursor: pointer;
+        background-color: #ffd94a;
+        border: solid 1px #000000;
+        color: #101010;
+        font-family: 'Comic Neue', 'Comic Sans MS', Verdana, sans-serif;
+        font-size: 1em;
+        font-weight: bold;
+        padding: 4px 14px;
+        text-decoration: none;
+        display: inline-block;
+}
+
+.Button:hover
+{
+        background-color: #ffe36e;
+        text-decoration: underline;
+}
+
+.ButtonPlay
+{
+        background-color: #1a9c3e;
+        border: solid 1px #0c5f24;
+        color: #ffffff;
+        min-width: 200px;
+        padding: 8px 18px;
+        font-size: 1.1em;
+}
+
+.ButtonPlay:hover
+{
+        background-color: #22b04a;
+}
+
+.Buttons a.Button
+{
+        margin: 0 4px;
+}
+
+.Label
+{
+        font-weight: bold;
+}
+
+.Detail
+{
+        color: #333333;
+}
+
+.DetailHighlighted
+{
+        font-weight: bold;
+        color: #1B7F1B;
+}
+
+.Attention
+{
+        font-weight: bold;
+        color: #B00000;
+}
+
+.FormNotes
+{
+        color: #555555;
+        font-size: 8pt;
+}
+
+.FormLabel
+{
+        font-weight: bold;
+}
+
+.Flash
+{
+        background-color: #ffffff;
+        border: solid 2px #000000;
+        max-width: 900px;
+        margin: 12px auto;
+        padding: 6px 10px;
+}
+
+.Flash-err
+{
+        background-color: #f2d5d5;
+}
+
+input.Text, input.TextBox, select.DropDownList, textarea.MultilineTextBox
+{
+        background-color: #ffffff;
+        border: solid 1px #000000;
+        color: #000000;
+        font-family: 'Comic Neue', 'Comic Sans MS', Verdana, sans-serif;
+        font-size: 10pt;
+        padding: 2px 5px;
+}
+
+textarea.MultilineTextBox
+{
+        width: 320px;
+        max-width: 96%;
+}
+
+.SearchBar
+{
+        margin: 4px 0 10px 0;
+}
+
+.SearchBar input
+{
+        width: 200px;
+}
+
+table.Grid
+{
+        margin: 6px auto;
+}
+
+table.Grid td
+{
+        padding: 8px 10px;
+        vertical-align: top;
+        text-align: center;
+}
+
+table.Rows
+{
+        margin: 6px 0;
+}
+
+table.Rows td
+{
+        padding: 2px 10px 2px 0;
+        text-align: left;
+}
+
+.GameThumbnail img
+{
+        width: 160px;
+        border: 1px solid #333333;
+}
+
+.GameDetails
+{
+        text-align: left;
+        font-size: 8.5pt;
+}
+
+.GameName a
+{
+        font-weight: bold;
+}
+
+.Pager
+{
+        margin: 6px 0;
+}
+
+.Pager a
+{
+        margin: 0 4px;
+}
+
+.Comment
+{
+        border-top: 1px solid #cccccc;
+        margin-top: 8px;
+        padding-top: 6px;
+        text-align: left;
+}
+
+.CommentBody
+{
+        white-space: pre-wrap;
+}
+
+.SkinZone {
+    margin: 10px 0;
+}
+
+.SkinZoneLabel {
+    display: inline-block;
+    width: 56px;
+    font-weight: bold;
+    vertical-align: middle;
+}
+
+.SkinSwatches {
+    display: inline-block;
+}
+
+.SkinSwatch {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 1px solid #666666;
+    margin: 1px;
+    cursor: pointer;
+    vertical-align: middle;
+}
+
+.SkinSwatch input {
+    display: none;
+}
+
+.SkinSwatch:has(input:checked) {
+    outline: 3px solid #000000;
+}
+
+.SkinCustom {
+    margin-left: 12px;
+    vertical-align: middle;
+}
+
+.SkinHex {
+    width: 84px;
+}
+
+.FigHead {
+    position: relative;
+}
+
+#FigurePreview {
+    width: 130px;
+    margin: 12px auto;
+}
+
+.FigHead {
+    width: 46px;
+    height: 38px;
+    margin: 0 auto;
+    border: 1px solid #333333;
+    border-radius: 13px;
+}
+
+.FigRow {
+    display: flex;
+    justify-content: center;
+    margin-top: 2px;
+}
+
+.FigArm {
+    position: relative;
+    overflow: hidden;
+    width: 17px;
+    height: 52px;
+    border: 1px solid #333333;
+    margin: 0 2px;
+}
+
+.FigTorso {
+    position: relative;
+    width: 48px;
+    height: 52px;
+    border: 1px solid #333333;
+    overflow: hidden;
+}
+
+.FigLeg {
+    position: relative;
+    width: 23px;
+    height: 48px;
+    border: 1px solid #333333;
+    margin: 0 1px;
+    overflow: hidden;
+}
+
+.Sw-C4281C { background: #c4281c; }
+.Sw-DA8541 { background: #da8541; }
+.Sw-F5CD30 { background: #f5cd30; }
+.Sw-4B974B { background: #4b974b; }
+.Sw-0D69AC { background: #0d69ac; }
+.Sw-B4D2E4 { background: #b4d2e4; }
+.Sw-F2F3F3 { background: #f2f3f3; }
+.Sw-A3A2A5 { background: #a3a2a5; }
+.Sw-635F62 { background: #635f62; }
+.Sw-1B2A35 { background: #1b2a35; }
+.Sw-694028 { background: #694028; }
+.Sw-CC8E69 { background: #cc8e69; }
+.Sw-E8BAC8 { background: #e8bac8; }
+.Sw-7FBFAF { background: #7fbfaf; }
+
+.centerlist
+{
+        display: inline-block;
+        text-align: left;
+        margin: 8px auto;
+        padding-left: 20px;
+}
+
+.lefttext
+{
+        text-align: left;
+}
+
+.hidden-field
+{
+        display: none;
+}
+
+.PlaceThumb
+{
+        max-width: 400px;
+        border: 1px solid #333333;
+}
+
+.BlurbText
+{
+        max-width: 700px;
+        margin: 8px auto;
+}
+
+.CharTable
+{
+        margin: 6px auto;
+}
+
+.CharTable td
+{
+        vertical-align: top;
+        padding: 4px 14px;
+}
+
+.CharTable td form + form
+{
+        margin-top: 10px;
+}
+
+.Commenter
+{
+        font-weight: bold;
+        margin-top: 8px;
+}
+
+@media (max-width: 720px)
+{
+        .navauth
+        {
+                position: static;
+                display: block;
+                transform: none;
+                padding: 2px 0 6px 0;
+                text-align: center;
+                white-space: normal;
+        }
+}

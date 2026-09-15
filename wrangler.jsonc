@@ -1,0 +1,16 @@
+{
+  "name": "wallofbricks",
+  "main": "src/worker.js",
+  "compatibility_date": "2025-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./public"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "wob",
+      "database_id": "REPLACE_WITH_YOUR_D1_ID"
+    }
+  ]
+}
