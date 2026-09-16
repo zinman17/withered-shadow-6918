@@ -941,7 +941,8 @@
         }
         label.addEventListener('pointerdown', toggle);
         label.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
-        label.addEventListener('touchend', function (ev) { ev.preventDefault(); toggle(ev); });
+        label.addEventListener('touchend', function (ev) { ev.preventDefault(); });
+        label.addEventListener('click', function (ev) { ev.preventDefault(); });
         label.addEventListener('mouseenter', function () {
             if (menus.some(function (x) { return x.classList.contains('Open'); })) {
                 closeMenus();

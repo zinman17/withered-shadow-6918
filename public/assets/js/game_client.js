@@ -752,6 +752,7 @@ __Boot()
         showError('This browser cannot start the 3D engine. Refresh the page.');
         return;
     }
+    loadLimbs();
 
     let E = null;
     let memF32 = null;
@@ -810,6 +811,193 @@ __Boot()
         return GL.upload(new Float32Array(E.memory.buffer, ptr, len).slice(), stride);
     }
 
+    const limbMeshes = [null, null, null, null, null, null];
+    const limbDims = [[2, 2, 1], [1.2, 1.2, 1.2], [1, 2, 1], [1, 2, 1], [1, 2, 1], [1, 2, 1]];
+
+    function glbAcc(json, dv, id) {
+        const a = json.accessors[id];
+        const bv = json.bufferViews[a.bufferView];
+        const p0 = (bv.byteOffset || 0) + (a.byteOffset || 0);
+        const ncomp = a.type === 'VEC3' ? 3 : (a.type === 'VEC2' ? 2 : (a.type === 'VEC4' ? 4 : 1));
+        const stride = bv.byteStride || (ncomp * (a.componentType === 5126 ? 4 : (a.componentType === 5125 ? 4 : 2)));
+        const out = new Array(a.count);
+        for (let i = 0; i < a.count; i++) {
+            const p = p0 + i * stride;
+            const row = [];
+            for (let c = 0; c < ncomp; c++) {
+                if (a.componentType === 5126) {
+                    row.push(dv.getFloat32(p + c * 4, true));
+                } else if (a.componentType === 5123) {
+                    row.push(dv.getUint16(p + c * 2, true));
+                } else {
+                    row.push(dv.getUint32(p + c * 4, true));
+                }
+            }
+            out[i] = row;
+        }
+        return out;
+    }
+
+    function glbNodeMat(n) {
+        if (n.matrix) {
+            return n.matrix.slice();
+        }
+        const t = n.translation || [0, 0, 0];
+        const s = n.scale || [1, 1, 1];
+        const q = n.rotation || [0, 0, 0, 1];
+        const x2 = q[0] + q[0];
+        const y2 = q[1] + q[1];
+        const z2 = q[2] + q[2];
+        const xx = q[0] * x2;
+        const xy = q[0] * y2;
+        const xz = q[0] * z2;
+        const yy = q[1] * y2;
+        const yz = q[1] * z2;
+        const zz = q[2] * z2;
+        const wx = q[3] * x2;
+        const wy = q[3] * y2;
+        const wz = q[3] * z2;
+        return [(1 - (yy + zz)) * s[0], (xy + wz) * s[0], (xz - wy) * s[0], 0,
+            (xy - wz) * s[1], (1 - (xx + zz)) * s[1], (yz + wx) * s[1], 0,
+            (xz + wy) * s[2], (yz - wx) * s[2], (1 - (xx + yy)) * s[2], 0,
+            t[0], t[1], t[2], 1];
+    }
+
+    function glbMatMul(a, b) {
+        const o = new Array(16);
+        for (let c = 0; c < 4; c++) {
+            for (let r = 0; r < 4; r++) {
+                o[c * 4 + r] = a[r] * b[c * 4] + a[4 + r] * b[c * 4 + 1] + a[8 + r] * b[c * 4 + 2] + a[12 + r] * b[c * 4 + 3];
+            }
+        }
+        return o;
+    }
+
+    function glbXform(m, v) {
+        return [m[0] * v[0] + m[4] * v[1] + m[8] * v[2] + m[12], m[1] * v[0] + m[5] * v[1] + m[9] * v[2] + m[13], m[2] * v[0] + m[6] * v[1] + m[10] * v[2] + m[14]];
+    }
+
+    function glbNormal(m, v) {
+        const x = m[0] * v[0] + m[4] * v[1] + m[8] * v[2];
+        const y = m[1] * v[0] + m[5] * v[1] + m[9] * v[2];
+        const z = m[2] * v[0] + m[6] * v[1] + m[10] * v[2];
+        const l = Math.hypot(x, y, z) || 1;
+        return [x / l, y / l, z / l];
+    }
+
+    function loadLimbs() {
+        fetch('assets/models/avatar_2008.glb').then(function (r) {
+            if (!r.ok) {
+                throw new Error('http ' + r.status);
+            }
+            return r.arrayBuffer();
+        }).then(function (buf) {
+            const dv = new DataView(buf);
+            if (dv.getUint32(0, true) !== 0x46546c67 || dv.getUint32(4, true) !== 2) {
+                throw new Error('not glb');
+            }
+            let off = 12;
+            let json = null;
+            let bin = null;
+            while (off + 8 <= buf.byteLength) {
+                const len = dv.getUint32(off, true);
+                const typ = dv.getUint32(off + 4, true);
+                if (typ === 0x4e4f534a) {
+                    json = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, off + 8, len)));
+                } else if (typ === 0x004e4942) {
+                    bin = new DataView(buf, off + 8, len);
+                }
+                off += 8 + len;
+            }
+            if (!json || !bin) {
+                throw new Error('bad glb');
+            }
+            const acc = function (id) { return glbAcc(json, bin, id); };
+            const found = {};
+            function walk(nid, pm) {
+                const n = json.nodes[nid];
+                const m = pm ? glbMatMul(pm, glbNodeMat(n)) : glbNodeMat(n);
+                if (n.mesh !== undefined && n.name) {
+                    found[n.name] = { mat: m, mesh: n.mesh };
+                }
+                const kids = n.children || [];
+                for (let i = 0; i < kids.length; i++) {
+                    walk(kids[i], m);
+                }
+            }
+            const scene = json.scenes[json.scene || 0];
+            for (let i = 0; i < scene.nodes.length; i++) {
+                walk(scene.nodes[i], null);
+            }
+            for (const nm in found) {
+                const en = found[nm];
+                const mesh = json.meshes[en.mesh];
+                let minX = 1e9;
+                let minY = 1e9;
+                let minZ = 1e9;
+                let maxX = -1e9;
+                let maxY = -1e9;
+                let maxZ = -1e9;
+                const geos = [];
+                for (let p = 0; p < mesh.primitives.length; p++) {
+                    const pr = mesh.primitives[p];
+                    const pos = acc(pr.attributes.POSITION);
+                    const nor = pr.attributes.NORMAL !== undefined ? acc(pr.attributes.NORMAL) : null;
+                    const idx = pr.indices !== undefined ? acc(pr.indices) : null;
+                    geos.push({ pos: pos, nor: nor, idx: idx });
+                    for (let i = 0; i < pos.length; i++) {
+                        const wp = glbXform(en.mat, pos[i]);
+                        if (wp[0] < minX) { minX = wp[0]; }
+                        if (wp[0] > maxX) { maxX = wp[0]; }
+                        if (wp[1] < minY) { minY = wp[1]; }
+                        if (wp[1] > maxY) { maxY = wp[1]; }
+                        if (wp[2] < minZ) { minZ = wp[2]; }
+                        if (wp[2] > maxZ) { maxZ = wp[2]; }
+                    }
+                }
+                const cx = (minX + maxX) / 2;
+                const piece = nm === 'Torso' ? 0 : (nm === 'Head' ? 1 : (nm.indexOf('Arm') >= 0 ? (cx >= 0 ? 2 : 3) : (nm.indexOf('Leg') >= 0 ? (cx >= 0 ? 4 : 5) : -1)));
+                if (piece < 0) {
+                    continue;
+                }
+                const dims = limbDims[piece];
+                const gx = (maxX - minX) || 1;
+                const gy = (maxY - minY) || 1;
+                const gz = (maxZ - minZ) || 1;
+                let total = 0;
+                for (let p = 0; p < geos.length; p++) {
+                    total += geos[p].idx ? geos[p].idx.length : geos[p].pos.length;
+                }
+                const arr = new Float32Array(total * 6);
+                let n = 0;
+                for (let p = 0; p < geos.length; p++) {
+                    const g = geos[p];
+                    const cnt = g.idx ? g.idx.length : g.pos.length;
+                    for (let i = 0; i < cnt; i++) {
+                        const vi = g.idx ? g.idx[i][0] : i;
+                        const wp = glbXform(en.mat, g.pos[vi]);
+                        const wn = g.nor ? glbNormal(en.mat, g.nor[vi]) : [0, 1, 0];
+                        arr[n] = (wp[0] - cx) * dims[0] / gx;
+                        arr[n + 1] = (wp[1] - (minY + maxY) / 2) * dims[1] / gy;
+                        arr[n + 2] = (wp[2] - (minZ + maxZ) / 2) * dims[2] / gz;
+                        const nx = wn[0] * dims[0] / gx;
+                        const ny = wn[1] * dims[1] / gy;
+                        const nz = wn[2] * dims[2] / gz;
+                        const nl = Math.hypot(nx, ny, nz) || 1;
+                        arr[n + 3] = nx / nl;
+                        arr[n + 4] = ny / nl;
+                        arr[n + 5] = nz / nl;
+                        n += 6;
+                    }
+                }
+                if (n > 0) {
+                    limbMeshes[piece] = GL.upload(arr, 6);
+                }
+            }
+        }).catch(function () {
+        });
+    }
+
     function refreshWorld() {
         studsMesh = uploadFrom(E.meshStudsPtr(), E.meshStudsLen(), 12);
         plainMesh = uploadFrom(E.meshPlainPtr(), E.meshPlainLen(), 12);
@@ -858,7 +1046,13 @@ __Boot()
         for (let i = 0; i < n; i++) {
             pieceModel(modelBuf, mats, i * 16);
             const o = i * 4;
-            GL.drawMesh(cubeMesh, { cam: cam, model: modelBuf, color: [cols[o], cols[o + 1], cols[o + 2], 1] });
+            const tint = [cols[o], cols[o + 1], cols[o + 2], 1];
+            const limb = limbMeshes[i % 6];
+            if (limb) {
+                GL.drawMesh(limb, { cam: cam, model: modelBuf, color: tint });
+            } else {
+                GL.drawMesh(cubeMesh, { cam: cam, model: modelBuf, color: tint });
+            }
         }
     }
 
@@ -1381,9 +1575,21 @@ __Boot()
             ev.preventDefault();
             const t = ev.changedTouches[0];
             stickId = t.identifier;
+            tapMoved = 1;
             moveStick(t.clientX, t.clientY);
         }, { passive: false });
     }
+
+    function endStick(ev) {
+        for (let i = 0; i < ev.changedTouches.length; i++) {
+            if (ev.changedTouches[i].identifier === stickId) {
+                stickId = -1;
+                resetStick();
+            }
+        }
+    }
+    window.addEventListener('touchend', endStick, { passive: false });
+    window.addEventListener('touchcancel', endStick, { passive: false });
 
     window.addEventListener('touchmove', function (ev) {
         if (!E) {
@@ -1424,6 +1630,11 @@ __Boot()
     window.addEventListener('touchend', function (ev) {
         if (!E) {
             return;
+        }
+        for (let i = 0; i < ev.changedTouches.length; i++) {
+            if (ev.changedTouches[i].identifier === stickId) {
+                return;
+            }
         }
         if (tapMoved === 0) {
             useTool();
