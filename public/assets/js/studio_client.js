@@ -595,6 +595,15 @@
                 markDirty();
             }));
             if (o.class === 'Part' || o.class === 'SpawnLocation') {
+                if (o.name === 'Handle') {
+                    row = propRow('Image');
+                    const ii = textInput(o.service !== 'Workspace' ? o.service : '', function (v) {
+                        const s = v.trim();
+                        o.service = s !== '' ? s : 'Workspace';
+                        markDirty();
+                    });
+                    row.appendChild(ii);
+                }
                 row = propRow('Script');
                 const hint = el('span', 'PInfoText', o.name === 'Handle' ? 'Runs when a player equips or uses this tool.' : 'Only used when the part is named Handle.');
                 row.appendChild(hint);
@@ -1117,7 +1126,17 @@
             const dy = t.clientY - lastTY;
             lastTX = t.clientX;
             lastTY = t.clientY;
-            E.stCamDrag(dx, dy);
+            if (E.stDragging() === 1) {
+                const nd = setNDC(t);
+                E.stMouseMove(nd[0], nd[1]);
+                const sel = E.stSelected();
+                if (sel >= 0 && objects[sel]) {
+                    pullFromEngine(objects[sel], sel);
+                    updatePropsLive();
+                }
+            } else {
+                E.stCamDrag(dx, dy);
+            }
         }
     }, { passive: false });
 

@@ -1156,6 +1156,9 @@ __Boot()
                 if (AV.nodes[i].name === 'RightShoulder') {
                     AV.rsNode = i;
                 }
+                if (AV.nodes[i].name === 'LeftShoulder') {
+                    AV.lsNode = i;
+                }
             }
             AV.ready = AV.limbs.length === 6 && !!AV.clips.Idle && !!AV.clips.Walk;
         }).catch(function (e) {
@@ -1234,9 +1237,9 @@ __Boot()
         animApply(clip, now, -1);
         if (base === 0) {
             if (now < useFlashUntil) {
-                animApply(AV.clips.ToolSlash, now - useFlashStart, AV.rsNode);
+                animApply(AV.clips.ToolSlash, now - useFlashStart, AV.lsNode);
             } else if (equippedIdx >= 0) {
-                animApply(AV.clips.ToolHold, now, AV.rsNode);
+                animApply(AV.clips.ToolHold, now, AV.lsNode);
             }
         }
         for (let i = 0; i < AV.nodes.length; i++) {
@@ -1263,7 +1266,17 @@ __Boot()
         for (let g = 0; g < groups; g++) {
             const base = g * 6;
             const st = mats[base * 16 + 13];
-            if (!AV.ready || st < 0) {
+            if (st < 0) {
+                pieceModel(modelBuf, mats, base * 16);
+                const co = base * 4;
+                const tint = [cols[co], cols[co + 1], cols[co + 2], 1];
+                const tt = equippedIdx >= 0 ? toolTex[equippedIdx] : null;
+                if (tt && tt.ready && toolMesh) {
+                    GL.drawMesh(toolMesh, { cam: cam, model: modelBuf, color: tint, tex: tt.tex, blend: true });
+                } else {
+                    GL.drawMesh(cubeMesh, { cam: cam, model: modelBuf, color: tint });
+                }
+            } else if (!AV.ready) {
                 for (let i = 0; i < 6; i++) {
                     pieceModel(modelBuf, mats, (base + i) * 16);
                     const co = (base + i) * 4;
@@ -1273,6 +1286,61 @@ __Boot()
             } else {
                 drawAvatar(cam, base, st, mats, cols, now);
             }
+        }
+    }
+
+    function buildToolCube() {
+        const fc = [
+            [[-0.5, -0.5, 0.5], [0.5, -0.5, 0.5], [0.5, 0.5, 0.5], [-0.5, 0.5, 0.5], [0, 0, 1]],
+            [[0.5, -0.5, -0.5], [-0.5, -0.5, -0.5], [-0.5, 0.5, -0.5], [0.5, 0.5, -0.5], [0, 0, -1]],
+            [[0.5, -0.5, 0.5], [0.5, -0.5, -0.5], [0.5, 0.5, -0.5], [0.5, 0.5, 0.5], [1, 0, 0]],
+            [[-0.5, -0.5, -0.5], [-0.5, -0.5, 0.5], [-0.5, 0.5, 0.5], [-0.5, 0.5, -0.5], [-1, 0, 0]],
+            [[-0.5, 0.5, 0.5], [0.5, 0.5, 0.5], [0.5, 0.5, -0.5], [-0.5, 0.5, -0.5], [0, 1, 0]],
+            [[-0.5, -0.5, -0.5], [0.5, -0.5, -0.5], [0.5, -0.5, 0.5], [-0.5, -0.5, 0.5], [0, -1, 0]]
+        ];
+        const uv = [[0, 1], [1, 1], [1, 0], [0, 0]];
+        const order = [0, 1, 2, 0, 2, 3];
+        const arr = new Float32Array(36 * 12);
+        let o = 0;
+        for (let i = 0; i < 6; i++) {
+            const face = fc[i];
+            for (let v = 0; v < 6; v++) {
+                const vt = face[order[v]];
+                arr[o] = vt[0];
+                arr[o + 1] = vt[1];
+                arr[o + 2] = vt[2];
+                arr[o + 3] = face[4][0];
+                arr[o + 4] = face[4][1];
+                arr[o + 5] = face[4][2];
+                arr[o + 6] = 1;
+                arr[o + 7] = 1;
+                arr[o + 8] = 1;
+                arr[o + 9] = 1;
+                arr[o + 10] = uv[order[v]][0];
+                arr[o + 11] = uv[order[v]][1];
+                o += 12;
+            }
+        }
+        return arr;
+    }
+
+    const toolTex = {};
+    let toolMesh = null;
+
+    function loadToolImages() {
+        for (let i = 0; i < world.tools.length && i < 9; i++) {
+            const src = String(world.tools[i].img || '');
+            if (src === '') {
+                continue;
+            }
+            const img = new Image();
+            img.onload = function () {
+                toolTex[i] = { tex: GL.texFromImage(img), ready: true };
+            };
+            img.onerror = function () {
+                toolTex[i] = { tex: null, ready: false };
+            };
+            img.src = src;
         }
     }
 
@@ -1596,16 +1664,15 @@ __Boot()
         if (hn > 0) {
             E.hitOpsClear();
         }
-        const pp = E.playerPos();
+        const pr = readPlayer();
         syncMem();
-        const d = memDV;
         const sendOps = myHits.length > 12 ? myHits.slice(0, 12) : myHits;
         myHits = myHits.length > 12 ? myHits.slice(12) : [];
         try {
             const res = await fetch('api/mp/sync', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ g: GAME_ID, x: d.getFloat64(pp, true), y: d.getFloat64(pp + 8, true), z: d.getFloat64(pp + 16, true), ry: E.playerYaw() * 57.29577951308232, anim: animName(E.playerState()), csrf: CSRF, hm: lastHm, ops: sendOps })
+                body: JSON.stringify({ g: GAME_ID, x: pr[0], y: pr[1], z: pr[2], ry: pr[3] * 57.29577951308232, anim: animName(E.playerState()), csrf: CSRF, hm: lastHm, ops: sendOps })
             });
             const data = await res.json();
             if (!data || !data.ok) {
@@ -1657,6 +1724,96 @@ __Boot()
         keysDown[code] = down;
         E.key(code, down ? 1 : 0);
     }
+
+    const stickState = { x: 0, y: 0 };
+    let jumpHeld = false;
+    let PHYS = null;
+    let ME = null;
+    const prBuf = new Float64Array(4);
+
+    function readPlayer() {
+        syncMem();
+        const ptr = E.playerRead();
+        const d = new Float64Array(E.memory.buffer, ptr, 4);
+        for (let i = 0; i < 4; i++) {
+            prBuf[i] = d[i];
+        }
+        return prBuf;
+    }
+
+    function stateInt(s) {
+        if (s === 'Walk' || s === 'Climb') {
+            return 1;
+        }
+        if (s === 'Jump') {
+            return 2;
+        }
+        if (s === 'Fall') {
+            return 3;
+        }
+        return 0;
+    }
+
+    function physicsInput() {
+        if (!PHYS || !ME || !E) {
+            return;
+        }
+        let ix = stickState.x;
+        let iz = stickState.y;
+        if (keysDown[0]) {
+            iz += 1;
+        }
+        if (keysDown[1]) {
+            iz -= 1;
+        }
+        if (keysDown[2]) {
+            ix -= 1;
+        }
+        if (keysDown[3]) {
+            ix += 1;
+        }
+        const cy = E.camYawGet();
+        const fx = -Math.sin(cy);
+        const fz = -Math.cos(cy);
+        const rx = -fz;
+        const rz = fx;
+        const dx = fx * iz + rx * ix;
+        const dz = fz * iz + rz * ix;
+        PHYS.input(ME, { x: dx, z: dz, j: keysDown[4] === true || jumpHeld });
+    }
+
+    function physFrame(dt) {
+        if (!PHYS || !ME || !E) {
+            return;
+        }
+        phAcc = Math.min(phAcc + dt, 0.1);
+        let n = 0;
+        while (phAcc >= 1 / 60 && n < 5) {
+            physicsInput();
+            PHYS.step();
+            phAcc -= 1 / 60;
+            n++;
+        }
+        for (let i = 0; i < PHYS.events.length; i++) {
+            if (PHYS.events[i].name === 'void') {
+                E.extVoid();
+                const rp = readPlayer();
+                PHYS.place(ME, [rp[0], rp[1], rp[2]]);
+            }
+        }
+        const pp = ME.body.translation();
+        E.extPlayer(pp.x, pp.y, pp.z, ME.yaw, stateInt(ME.state));
+        const pst = PHYS.parts.snapshot(false);
+        for (let i = 0; i < pst.length; i++) {
+            if (pst[i].gone) {
+                E.extPartHide(pst[i].id);
+            } else if (pst[i].p) {
+                E.extPartPos(pst[i].id, pst[i].p[0], pst[i].p[1], pst[i].p[2]);
+            }
+        }
+    }
+
+    let phAcc = 0;
 
     window.addEventListener('keydown', function (ev) {
         if (!E) {
@@ -1780,6 +1937,8 @@ __Boot()
         const kx = dx * f;
         const ky = dy * f;
         knobEl.style.transform = 'translate(' + kx + 'px, ' + ky + 'px)';
+        stickState.x = kx / max;
+        stickState.y = -ky / max;
         E.stick(kx / max, -ky / max);
     }
 
@@ -1787,6 +1946,8 @@ __Boot()
         if (knobEl) {
             knobEl.style.transform = 'translate(0px, 0px)';
         }
+        stickState.x = 0;
+        stickState.y = 0;
         if (E) {
             E.stick(0, 0);
         }
@@ -1892,16 +2053,22 @@ __Boot()
     if (jumpBtn) {
         jumpBtn.addEventListener('touchstart', function (ev) {
             ev.preventDefault();
+            jumpHeld = true;
+            jumpBtn.classList.add('Jumping');
             if (E) {
                 E.key(4, 1);
             }
         }, { passive: false });
         jumpBtn.addEventListener('touchend', function () {
+            jumpHeld = false;
+            jumpBtn.classList.remove('Jumping');
             if (E) {
                 E.key(4, 0);
             }
         });
         jumpBtn.addEventListener('touchcancel', function () {
+            jumpHeld = false;
+            jumpBtn.classList.remove('Jumping');
             if (E) {
                 E.key(4, 0);
             }
@@ -1963,6 +2130,7 @@ __Boot()
         const t = now / 1000;
         const dt = lastT === 0 ? 0.016 : Math.min(t - lastT, 0.1);
         lastT = t;
+        physFrame(dt);
         const wasDirty = E.worldVersion() === 0;
         E.frame(dt, t);
         if (wasDirty) {
@@ -2007,6 +2175,42 @@ __Boot()
             E.luaOutClear();
         }
         requestAnimationFrame(tick);
+    }
+
+    async function bootPhysics() {
+        try {
+            const rap = await import('assets/js/rapier.js');
+            await rap.init();
+            const phMod = await import('assets/js/physics.js');
+            const phParts = [];
+            phParts[0] = { p: [0, -2, 0], q: [0, 0, 0, 1], s: [512, 4, 512], shape: 1, solid: true, anchored: true };
+            const phSpawns = [];
+            for (let i = 0; i < world.parts.length; i++) {
+                const p = world.parts[i];
+                const px = Number(p.px) || 0;
+                const py = Number(p.py) || 0;
+                const pz = Number(p.pz) || 0;
+                const sx = Number(p.sx) || 4;
+                const sy = Number(p.sy) || 1.2;
+                const sz = Number(p.sz) || 2;
+                phParts[i + 1] = { p: [px, py, pz], q: [0, 0, 0, 1], s: [sx, sy, sz], shape: 1, solid: true, anchored: true };
+                if (Number(p.sc) === 1) {
+                    phSpawns.push([px, py + sy / 2 + 0.1, pz]);
+                }
+            }
+            if (phSpawns.length === 0) {
+                phSpawns.push([0, 1, 0]);
+            }
+            PHYS = new phMod.Physics(rap, { parts: phParts, spawns: phSpawns, ladders: [] }, { authoritative: true });
+            ME = PHYS.add('me');
+            E.extPhysSet(1);
+            const p0 = ME.body.translation();
+            E.extPlayer(p0.x, p0.y, p0.z, 0, 0);
+        } catch (err) {
+            PHYS = null;
+            ME = null;
+            console.log('[phys] ' + (err && err.message ? err.message : err));
+        }
     }
 
     async function boot() {
@@ -2068,6 +2272,8 @@ __Boot()
             buildHotbar();
             buildGuiLayer();
             refreshEquipUi();
+            toolMesh = GL.upload(buildToolCube(), 12);
+            loadToolImages();
             E.bootSky();
             refreshWorld();
             cubeMesh = uploadFrom(E.cubeGeoPtr(), E.cubeGeoLen(), 6);
@@ -2083,6 +2289,7 @@ __Boot()
             }
             requestAnimationFrame(tick);
             setInterval(mpTick, 250);
+            bootPhysics();
         } catch (err) {
             showError('The game engine failed to load. Refresh the page.');
         }

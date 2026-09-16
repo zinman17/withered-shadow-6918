@@ -22,6 +22,12 @@ function cleanColor(v) {
     return /^[0-9A-F]{6}$/.test(c) ? c : 'A3A2A5';
 }
 
+function cleanImgPath(v) {
+    const s = String(v === undefined || v === null ? '' : v).trim();
+    if (s === '' || s.indexOf('..') !== -1) { return ''; }
+    return /^assets\/[A-Za-z0-9_\-\/]+\.(png|jpg|jpeg|gif|webp)$/.test(s) ? s : '';
+}
+
 async function play(ctx) {
     const id = getInt(ctx.url, 'id');
     if (id === null) { return ctx.redirect('games'); }
@@ -43,9 +49,9 @@ async function play(ctx) {
     for (const p of prs) {
         world.parts.push({ name: String(p.name), sc: String(p.class) === 'SpawnLocation' ? 1 : 0, px: Number(p.px), py: Number(p.py), pz: Number(p.pz), sx: Number(p.sx), sy: Number(p.sy), sz: Number(p.sz), color: hex6(p.color, 'A3A2A5') });
     }
-    const trs = await ctx.db.all("SELECT name, px, py, pz, sx, sy, sz, color, code FROM game_objects WHERE game_id = ? AND class = 'Part' AND name = 'Handle' ORDER BY id LIMIT 9", [id]);
+    const trs = await ctx.db.all("SELECT name, service, px, py, pz, sx, sy, sz, color, code FROM game_objects WHERE game_id = ? AND class = 'Part' AND name = 'Handle' ORDER BY id LIMIT 9", [id]);
     for (const t of trs) {
-        world.tools.push({ name: 'Tool', sx: Number(t.sx), sy: Number(t.sy), sz: Number(t.sz), color: hex6(t.color, 'C4281C'), code: String(t.code || '') });
+        world.tools.push({ name: 'Tool', sx: Number(t.sx), sy: Number(t.sy), sz: Number(t.sz), color: hex6(t.color, 'C4281C'), code: String(t.code || ''), img: cleanImgPath(t.service) });
     }
     const grs = await ctx.db.all("SELECT name, px, py, sx, sy, color, code FROM game_objects WHERE game_id = ? AND class = 'GuiButton' ORDER BY id LIMIT 32", [id]);
     const guiButtons = [];
@@ -69,10 +75,9 @@ async function play(ctx) {
         '<div id="GameClient" data-game="' + Number(g.id) + '" data-skin="' + esc(skin.head + ' ' + skin.torso + ' ' + skin.arms + ' ' + skin.legs) + '" data-world="' + esc(JSON.stringify(world)) + '"' + mpAttrs + '>\n' +
         '<div id="GameLoading"><p>Loading</p></div>\n' +
         '<div id="GameError"><div id="GameErrorBox"><p id="GameErrorText"></p><p><a href="game?id=' + Number(g.id) + '">Back</a></p></div></div>\n' +
-        '<div id="TopBar">\n<button id="MenuBtn" type="button" aria-label="Menu"><img src="assets/images/menu.png" alt="Menu" width="22" height="22"></button>\n<button id="ChatBtn" type="button" aria-label="Chat"><img src="assets/images/chat.png" alt="Chat" width="24" height="24"></button>\n<span id="TopBrand">WallOfBricks</span>\n</div>\n' +
+        '<div id="TopBar">\n<button id="MenuBtn" type="button" aria-label="Menu"><img src="assets/images/menu.png" alt="Menu" width="22" height="22"></button>\n<button id="ChatBtn" type="button" aria-label="Chat"><img src="assets/images/chat.png" alt="Chat" width="24" height="24"></button>\n<span id="TopBrand">WallOfBricks</span>\n<div id="HealthBox">\n<button id="UseButton" type="button">Use</button>\n<div id="HealthBar"><div id="HealthFill"></div></div>\n</div>\n</div>\n' +
         '<div id="ChatPanel">\n<div id="ChatLog"></div>\n<form id="ChatForm" autocomplete="off"><input id="ChatBox" type="text" maxlength="120" placeholder="To chat click here or press slash key" autocomplete="off"><button id="ChatSend" type="submit">Send</button></form>\n</div>\n' +
         '<div id="PlayerList"><div id="PlayerListHead">Players</div><ul id="PlayerRows"></ul></div>\n' +
-        '<div id="HealthBox">\n<button id="UseButton" type="button">Use</button>\n<div id="HealthBar"><div id="HealthFill"></div></div>\n<div id="HealthLabel">health</div>\n</div>\n' +
         '<div id="Crosshair"></div>\n' +
         '<div id="Hotbar"></div>\n' +
         '<div id="GuiLayer"></div>\n' +
@@ -167,11 +172,16 @@ async function apiStudio(ctx) {
             const sz = cleanNum(o.sz, 0.05, 2048, 2);
             const color = cleanColor(o.color);
             const anchored = o.anchored ? 1 : 0;
+            let storeService = service;
+            if (cls === 'Part' && name === 'Handle') {
+                const imgp = cleanImgPath(o.service);
+                if (imgp !== '') { storeService = imgp; }
+            }
             if (cls === 'Part' && name === 'Handle') {
                 if (nHandles >= 9) { continue; }
                 nHandles++;
             }
-            stmts.push({ sql: 'INSERT INTO game_objects (game_id, class, name, service, px, py, pz, sx, sy, sz, color, anchored, code, created) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', params: [id, cls, name, service, px, py, pz, sx, sy, sz, color, anchored, codeChars, nowSql()] });
+            stmts.push({ sql: 'INSERT INTO game_objects (game_id, class, name, service, px, py, pz, sx, sy, sz, color, anchored, code, created) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', params: [id, cls, name, storeService, px, py, pz, sx, sy, sz, color, anchored, codeChars, nowSql()] });
             nObjects++;
         }
         let nScripts = 0;
