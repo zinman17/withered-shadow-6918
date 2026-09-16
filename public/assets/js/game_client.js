@@ -1286,7 +1286,7 @@ __Boot()
         const g = c.getContext('2d');
         g.fillStyle = 'rgba(0, 0, 0, 0.45)';
         g.fillRect(0, 0, 256, 64);
-        g.font = 'bold 30px Comic Neue, Arial, sans-serif';
+        g.font = 'bold 30px Source Sans Pro, Arial, sans-serif';
         g.fillStyle = '#FFFFFF';
         g.textAlign = 'center';
         g.textBaseline = 'middle';
@@ -1348,7 +1348,7 @@ __Boot()
     const chatBox = document.getElementById('ChatBox');
     let lastChatId = 0;
     if (chatPanel) {
-        chatPanel.style.display = 'block';
+        chatPanel.style.display = TOUCH ? 'none' : 'block';
     }
 
     function chatAdd(u, b) {
@@ -1829,6 +1829,9 @@ __Boot()
     let tapX = 0;
     let tapY = 0;
     let tapMoved = 0;
+    let lookId = -1;
+    let lookX = 0;
+    let lookY = 0;
 
     canvas.addEventListener('touchstart', function (ev) {
         if (!E) {
@@ -1838,18 +1841,39 @@ __Boot()
         tapX = t.clientX;
         tapY = t.clientY;
         tapMoved = 0;
+        if (lookId === -1) {
+            lookId = t.identifier;
+            lookX = t.clientX;
+            lookY = t.clientY;
+        }
     }, { passive: true });
 
     window.addEventListener('touchmove', function (ev) {
         for (let i = 0; i < ev.changedTouches.length; i++) {
             const t = ev.changedTouches[i];
+            if (t.identifier === lookId && E) {
+                const dx = t.clientX - lookX;
+                const dy = t.clientY - lookY;
+                if (dx !== 0 || dy !== 0) {
+                    ev.preventDefault();
+                    lookX = t.clientX;
+                    lookY = t.clientY;
+                    tapMoved = 1;
+                    E.camDrag(dx, dy);
+                }
+            }
             if (Math.abs(t.clientX - tapX) + Math.abs(t.clientY - tapY) > 12) {
                 tapMoved = 1;
             }
         }
-    }, { passive: true });
+    }, { passive: false });
 
     window.addEventListener('touchend', function (ev) {
+        for (let i = 0; i < ev.changedTouches.length; i++) {
+            if (ev.changedTouches[i].identifier === lookId) {
+                lookId = -1;
+            }
+        }
         if (!E) {
             return;
         }

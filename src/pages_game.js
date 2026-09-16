@@ -65,7 +65,7 @@ async function play(ctx) {
     }
     const v = CFG.assetVersion;
     const mpAttrs = me !== null ? ' data-mp="1" data-mpname="' + esc(me.username) + '" data-csrf="' + esc(auth.csrfToken(ctx.session)) + '"' : ' data-mp="0"';
-    const html = '<!doctype html>\n<html>\n<head>\n<meta charset="utf-8">\n<title>' + esc(g.name) + ' - WallOfBricks</title>\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<link rel="preload" href="assets/js/wob_engine.wasm" as="fetch">\n<link rel="preload" href="assets/images/menu.png" as="image">\n<link rel="preload" href="assets/images/chat.png" as="image">\n<link rel="stylesheet" href="assets/css/game.css?v=' + v + '">\n</head>\n<body>\n' +
+    const html = '<!doctype html>\n<html>\n<head>\n<meta charset="utf-8">\n<title>' + esc(g.name) + ' - WallOfBricks</title>\n<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">\n<meta name="mobile-web-app-capable" content="yes">\n<meta name="apple-mobile-web-app-capable" content="yes">\n<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">\n<link rel="preload" href="assets/js/wob_engine.wasm" as="fetch">\n<link rel="preload" href="assets/images/menu.png" as="image">\n<link rel="preload" href="assets/images/chat.png" as="image">\n<link rel="stylesheet" href="assets/css/game.css?v=' + v + '">\n</head>\n<body>\n' +
         '<div id="GameClient" data-game="' + Number(g.id) + '" data-skin="' + esc(skin.head + ' ' + skin.torso + ' ' + skin.arms + ' ' + skin.legs) + '" data-world="' + esc(JSON.stringify(world)) + '"' + mpAttrs + '>\n' +
         '<div id="GameLoading"><p>Loading</p></div>\n' +
         '<div id="GameError"><div id="GameErrorBox"><p id="GameErrorText"></p><p><a href="game?id=' + Number(g.id) + '">Back</a></p></div></div>\n' +
@@ -97,7 +97,7 @@ async function studio(ctx) {
         return ctx.redirect('game?id=' + id);
     }
     const v = CFG.assetVersion;
-    const html = '<!doctype html>\n<html>\n<head>\n<meta charset="utf-8">\n<title>' + esc('Studio - ' + g.name + ' - WallOfBricks') + '</title>\n<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
+    const html = '<!doctype html>\n<html>\n<head>\n<meta charset="utf-8">\n<title>' + esc('Studio - ' + g.name + ' - WallOfBricks') + '</title>\n<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">\n' +
         '<link rel="preload" href="assets/js/wob_engine.wasm" as="fetch">\n<link rel="preload" href="assets/js/studio_client.js?v=' + v + '" as="script">\n<link rel="stylesheet" href="assets/css/studio.css?v=' + v + '">\n</head>\n<body>\n' +
         '<div id="StudioBoot"><p>Loading Studio</p></div>\n<div id="StudioRoot" data-game="' + Number(g.id) + '" data-gamename="' + esc(g.name) + '">\n' +
         '<div id="StudioMenubar">\n' +
