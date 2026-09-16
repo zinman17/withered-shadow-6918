@@ -1,0 +1,138 @@
+.navbar-brand
+{
+        display: inline-flex;
+        align-items: center;
+}
+
+.navbar-brand .icon-logo
+{
+        display: inline-block;
+        background-image: none;
+        text-indent: 0;
+        width: auto;
+        height: 30px;
+        color: #ffffff;
+        font-family: HCo Gotham SSm, Helvetica, Arial, sans-serif;
+        font-weight: 700;
+        font-size: 19px;
+        letter-spacing: 0.4px;
+        line-height: 30px;
+        vertical-align: middle;
+}
+
+.navbar-brand .icon-logo-r
+{
+        display: none;
+}
+
+.rbx-navbar-header
+{
+        display: flex;
+        align-items: center;
+        float: left;
+        height: 40px;
+}
+
+.rbx-header .rbx-navbar-header
+{
+        max-width: none;
+}
+
+.rbx-navbar-header .navbar-header
+{
+        float: none;
+}
+
+#header-menu-icon
+{
+        float: none;
+}
+
+#navbar-right .form-group
+{
+        margin-bottom: 0;
+}
+
+#navbar-right .form-control
+{
+        height: 32px;
+        padding: 5px 10px;
+        width: 100%;
+}
+
+#navbar-search-input
+{
+        width: 100%;
+}
+
+html
+{
+        background-color: #191b1d;
+}
+
+body.rbx-body.dark-theme
+{
+        background-color: #191b1d;
+}
+
+.dark-theme .container-main
+{
+        background-color: #191b1d;
+}
+
+#right-navigation-header
+{
+        position: absolute;
+        top: 0;
+        right: 0;
+        left: 100px;
+}
+
+#right-navigation-header .rbx-navbar-right
+{
+        margin-top: 3px;
+}
+
+#navbar-right > li
+{
+        float: left;
+        display: flex;
+        align-items: center;
+        height: 40px;
+        margin-left: 6px;
+}
+
+#navbar-right > li.rbx-navbar-right-search
+{
+        width: 150px;
+}
+
+#navbar-right .form-horizontal
+{
+        margin: 0;
+        width: 100%;
+}
+
+#navbar-right .form-horizontal .form-group
+{
+        float: none;
+        width: 100%;
+}
+
+#navbar-right > li + li
+{
+        margin-left: 6px;
+}
+
+#navbar-right .signup-button
+{
+        padding: 6px 12px;
+}
+
+@media (max-width: 543px)
+{
+        #right-navigation-header
+        {
+                left: 0;
+        }
+}

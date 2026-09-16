@@ -3,7 +3,8 @@
     var nav = document.getElementById('navigation-container');
     if (menu && nav) {
         menu.addEventListener('click', function () {
-            nav.className = nav.className === 'light-theme nav-open' ? 'light-theme' : 'light-theme nav-open';
+            var open = nav.className.indexOf('nav-open') !== -1;
+            nav.className = open ? 'dark-theme gotham-font' : 'dark-theme gotham-font nav-open';
         });
     }
     var blurb = document.getElementById('blurb');

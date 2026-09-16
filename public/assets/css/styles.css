@@ -1,8 +1,3 @@
-html
-{
-        background: #e3e3e3;
-}
-
 html, body
 {
         -webkit-text-size-adjust: 100%;
@@ -441,55 +436,10 @@ table.Rows td
         font-weight: 700;
         margin-top: 8px;
 }
-body
+.inlineform
 {
-        padding-top: 90px;
-}
-
-.rbx-header .navbar-brand
-{
-        display: inline-flex;
-        align-items: center;
-}
-
-.rbx-header .navbar-brand .icon-logo-img
-{
-        height: 25px;
-        width: auto;
-        display: block;
-}
-
-.rbx-header .navbar-brand .icon-logo-r
-{
-        margin-left: 8px;
-}
-
-.rbx-header .rbx-navbar-header
-{
-        max-width: none;
-}
-
-@media (min-width: 992px)
-{
-        .rbx-header .rbx-navbar-header
-        {
-                margin-top: 26px;
-        }
-
-        .rbx-header .rbx-navbar
-        {
-                margin-top: 30px;
-        }
-
-        .rbx-header .rbx-navbar-search
-        {
-                margin-top: 28px;
-        }
-
-        .rbx-header .rbx-navbar-right
-        {
-                margin-top: 22px;
-        }
+        display: inline;
+        margin: 0;
 }
 
 .footer .footer-links .footer-link
@@ -499,43 +449,6 @@ body
         flex: 0 1 auto;
         float: none;
         padding: 6px;
-}
-
-.inlineform
-{
-        display: inline;
-        margin: 0;
-}
-
-#header-menu-icon
-{
-        width: 22px;
-        height: 16px;
-        margin: 6px;
-        background: linear-gradient(#393b3d, #393b3d) center / 100% 2px no-repeat;
-        position: relative;
-}
-
-#header-menu-icon::before
-{
-        content: '';
-        position: absolute;
-        left: 0;
-        right: 0;
-        top: 0;
-        height: 2px;
-        background: #393b3d;
-}
-
-#header-menu-icon::after
-{
-        content: '';
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        height: 2px;
-        background: #393b3d;
 }
 
 .rbx-header button.linklike
@@ -552,72 +465,4 @@ body
 .rbx-header button.linklike:hover
 {
         text-decoration: underline;
-}
-
-.light-theme .rbx-header .icon-nav-search, .dark-theme .rbx-header .icon-nav-search
-{
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='10.5' cy='10.5' r='6' fill='none' stroke='%23757575' stroke-width='2.2'/%3E%3Cline x1='15.2' y1='15.2' x2='21' y2='21' stroke='%23757575' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E");
-        background-position: center;
-        background-size: 18px 18px;
-}
-
-.light-theme .rbx-header .icon-nav-search-white, .dark-theme .rbx-header .icon-nav-search-white
-{
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='10.5' cy='10.5' r='6' fill='none' stroke='%23ffffff' stroke-width='2.2'/%3E%3Cline x1='15.2' y1='15.2' x2='21' y2='21' stroke='%23ffffff' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E");
-        background-position: center;
-        background-size: 18px 18px;
-}
-
-.light-theme .rbx-header .icon-nav-settings, .dark-theme .rbx-header .icon-nav-settings
-{
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23757575' d='M19.4 13c0-.3.1-.6.1-1s0-.7-.1-1l2.1-1.7c.2-.2.3-.5.1-.7l-2-3.5c-.1-.2-.4-.3-.6-.2l-2.5 1c-.5-.4-1.1-.7-1.7-1l-.4-2.6c0-.3-.2-.5-.5-.5h-4c-.3 0-.5.2-.5.5l-.4 2.6c-.6.3-1.2.6-1.7 1l-2.5-1c-.2-.1-.5 0-.6.2l-2 3.5c-.2.2-.1.5.1.7L4.5 11c0 .3-.1.6-.1 1s0 .7.1 1l-2.1 1.7c-.2.2-.3.5-.1.7l2 3.5c.1.2.4.3.6.2l2.5-1c.5.4 1.1.7 1.7 1l.4 2.6c0 .3.2.5.5.5h4c.3 0 .5-.2.5-.5l.4-2.6c.6-.3 1.2-.6 1.7-1l2.5 1c.2.1.5 0 .6-.2l2-3.5c.2-.2.1-.5-.1-.7L19.4 13zM12 15.5c-1.9 0-3.5-1.6-3.5-3.5s1.6-3.5 3.5-3.5 3.5 1.6 3.5 3.5-1.6 3.5-3.5 3.5z'/%3E%3C/svg%3E");
-        background-position: center;
-        background-size: 30px 30px;
-}
-
-@media (min-width: 992px)
-{
-        .rbx-header
-        {
-                height: 90px;
-        }
-
-        #header-menu-icon
-        {
-                display: none;
-        }
-}
-
-@media (max-width: 991px)
-{
-        #header-menu-icon
-        {
-                display: block;
-        }
-
-        .rbx-navbar-right-nav li.signup-button-container, .rbx-navbar-right-nav li.login-action, .rbx-navbar-right-nav li.rbx-navbar-user-item, .rbx-navbar-right-nav li.rbx-navbar-logout-item
-        {
-                display: none;
-        }
-
-        #navigation-container.nav-open .rbx-navbar-right-nav
-        {
-                display: block;
-                position: absolute;
-                top: 100%;
-                right: 0;
-                margin: 0;
-                padding: 6px 0;
-                background: #dee1e3;
-                box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.4);
-                z-index: 3000;
-                min-width: 190px;
-        }
-
-        #navigation-container.nav-open .rbx-navbar-right-nav li.signup-button-container, #navigation-container.nav-open .rbx-navbar-right-nav li.login-action, #navigation-container.nav-open .rbx-navbar-right-nav li.rbx-navbar-user-item, #navigation-container.nav-open .rbx-navbar-right-nav li.rbx-navbar-logout-item
-        {
-                display: block;
-                float: none;
-                text-align: left;
-        }
 }

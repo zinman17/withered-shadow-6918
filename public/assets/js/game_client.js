@@ -811,7 +811,12 @@ __Boot()
         return GL.upload(new Float32Array(E.memory.buffer, ptr, len).slice(), stride);
     }
 
-    const AV = { ready: false, nodes: [], roots: [], clips: {}, limbs: [], bct: [0, 3.1, 0], rsNode: -1 };
+    const AV = { ready: false, nodes: [], roots: [], clips: {}, limbs: [], bct: [0, 3.1, 0], rsNode: -1, err: '' };
+    window.__wobAvatar = function () {
+        const names = [];
+        for (const k in AV.clips) { names.push(k); }
+        return { ready: AV.ready, limbs: AV.limbs.length, nodes: AV.nodes.length, clips: names, err: AV.err };
+    };
     let useFlashStart = -10;
     let useFlashUntil = -10;
 
@@ -1153,7 +1158,8 @@ __Boot()
                 }
             }
             AV.ready = AV.limbs.length === 6 && !!AV.clips.Idle && !!AV.clips.Walk;
-        }).catch(function () {
+        }).catch(function (e) {
+            AV.err = String(e);
         });
     }
 
