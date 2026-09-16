@@ -1,4 +1,11 @@
 (function () {
+    var menu = document.getElementById('header-menu-icon');
+    var nav = document.getElementById('navigation-container');
+    if (menu && nav) {
+        menu.addEventListener('click', function () {
+            nav.className = nav.className === 'light-theme nav-open' ? 'light-theme' : 'light-theme nav-open';
+        });
+    }
     var blurb = document.getElementById('blurb');
     var count = document.getElementById('blurb-count');
     if (blurb && count) {

@@ -752,7 +752,7 @@ __Boot()
         showError('This browser cannot start the 3D engine. Refresh the page.');
         return;
     }
-    loadLimbs();
+    loadAvatar();
 
     let E = null;
     let memF32 = null;
@@ -811,15 +811,17 @@ __Boot()
         return GL.upload(new Float32Array(E.memory.buffer, ptr, len).slice(), stride);
     }
 
-    const limbMeshes = [null, null, null, null, null, null];
-    const limbDims = [[2, 2, 1], [1.2, 1.2, 1.2], [1, 2, 1], [1, 2, 1], [1, 2, 1], [1, 2, 1]];
+    const AV = { ready: false, nodes: [], roots: [], clips: {}, limbs: [], bct: [0, 3.1, 0], rsNode: -1 };
+    let useFlashStart = -10;
+    let useFlashUntil = -10;
 
     function glbAcc(json, dv, id) {
         const a = json.accessors[id];
         const bv = json.bufferViews[a.bufferView];
         const p0 = (bv.byteOffset || 0) + (a.byteOffset || 0);
-        const ncomp = a.type === 'VEC3' ? 3 : (a.type === 'VEC2' ? 2 : (a.type === 'VEC4' ? 4 : 1));
-        const stride = bv.byteStride || (ncomp * (a.componentType === 5126 ? 4 : (a.componentType === 5125 ? 4 : 2)));
+        const ncomp = a.type === 'VEC3' ? 3 : (a.type === 'VEC2' ? 2 : (a.type === 'VEC4' ? 4 : (a.type === 'MAT4' ? 16 : 1)));
+        const bs = a.componentType === 5126 || a.componentType === 5125 ? 4 : (a.componentType === 5123 ? 2 : 1);
+        const stride = bv.byteStride || (ncomp * bs);
         const out = new Array(a.count);
         for (let i = 0; i < a.count; i++) {
             const p = p0 + i * stride;
@@ -828,7 +830,9 @@ __Boot()
                 if (a.componentType === 5126) {
                     row.push(dv.getFloat32(p + c * 4, true));
                 } else if (a.componentType === 5123) {
-                    row.push(dv.getUint16(p + c * 2, true));
+                    row.push(a.normalized ? dv.getUint16(p + c * 2, true) / 65535 : dv.getUint16(p + c * 2, true));
+                } else if (a.componentType === 5121) {
+                    row.push(a.normalized ? dv.getUint8(p + c, true) / 255 : dv.getUint8(p + c, true));
                 } else {
                     row.push(dv.getUint32(p + c * 4, true));
                 }
@@ -838,13 +842,119 @@ __Boot()
         return out;
     }
 
-    function glbNodeMat(n) {
-        if (n.matrix) {
-            return n.matrix.slice();
+    function matInto(a, b, out) {
+        for (let c = 0; c < 4; c++) {
+            for (let r = 0; r < 4; r++) {
+                out[c * 4 + r] = a[r] * b[c * 4] + a[4 + r] * b[c * 4 + 1] + a[8 + r] * b[c * 4 + 2] + a[12 + r] * b[c * 4 + 3];
+            }
         }
-        const t = n.translation || [0, 0, 0];
-        const s = n.scale || [1, 1, 1];
-        const q = n.rotation || [0, 0, 0, 1];
+        return out;
+    }
+
+    function quatSlerp(a, b, t, out) {
+        let d = a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3];
+        const sg = d < 0 ? -1 : 1;
+        d *= sg;
+        const x = b[0] * sg;
+        const y = b[1] * sg;
+        const z = b[2] * sg;
+        const w = b[3] * sg;
+        let k0;
+        let k1;
+        if (d > 0.9995) {
+            k0 = 1 - t;
+            k1 = t;
+        } else {
+            const th = Math.acos(Math.min(d, 1));
+            const sh = Math.sin(th);
+            k0 = Math.sin((1 - t) * th) / sh;
+            k1 = Math.sin(t * th) / sh;
+        }
+        out[0] = a[0] * k0 + x * k1;
+        out[1] = a[1] * k0 + y * k1;
+        out[2] = a[2] * k0 + z * k1;
+        out[3] = a[3] * k0 + w * k1;
+        const l = Math.hypot(out[0], out[1], out[2], out[3]) || 1;
+        out[0] /= l;
+        out[1] /= l;
+        out[2] /= l;
+        out[3] /= l;
+    }
+
+    function sampleChan(ch, t, out) {
+        const ts = ch.times;
+        if (t <= ts[0][0]) {
+            const v = ch.vals[0];
+            for (let k = 0; k < v.length; k++) {
+                out[k] = v[k];
+            }
+            return;
+        }
+        const last = ts.length - 1;
+        if (t >= ts[last][0]) {
+            const v = ch.vals[last];
+            for (let k = 0; k < v.length; k++) {
+                out[k] = v[k];
+            }
+            return;
+        }
+        let lo = 0;
+        let hi = last;
+        let i = 0;
+        while (lo <= hi) {
+            const mid = (lo + hi) >> 1;
+            if (ts[mid][0] <= t) {
+                i = mid;
+                lo = mid + 1;
+            } else {
+                hi = mid - 1;
+            }
+        }
+        const t0 = ts[i][0];
+        const t1 = ts[i + 1][0];
+        const f = t1 > t0 ? (t - t0) / (t1 - t0) : 0;
+        const v0 = ch.vals[i];
+        const v1 = ch.vals[i + 1];
+        if (ch.path === 'rotation') {
+            quatSlerp(v0, v1, f, out);
+        } else {
+            for (let k = 0; k < v0.length; k++) {
+                out[k] = v0[k] + (v1[k] - v0[k]) * f;
+            }
+        }
+    }
+
+    function animApply(clip, t, onlyNode) {
+        if (!clip) {
+            return;
+        }
+        const tt = clip.dur > 0 ? t % clip.dur : 0;
+        for (let i = 0; i < clip.chans.length; i++) {
+            const ch = clip.chans[i];
+            if (onlyNode >= 0 && ch.node !== onlyNode) {
+                continue;
+            }
+            const n = AV.nodes[ch.node];
+            sampleChan(ch, onlyNode >= 0 ? Math.min(t, clip.dur) : tt, ch.path === 'rotation' ? n.r : n.t);
+        }
+    }
+
+    function animReset() {
+        for (let i = 0; i < AV.nodes.length; i++) {
+            const n = AV.nodes[i];
+            for (let k = 0; k < 3; k++) {
+                n.t[k] = n.dt[k];
+            }
+            for (let k = 0; k < 4; k++) {
+                n.r[k] = n.dr[k];
+            }
+        }
+    }
+
+    function nodeLocal(n, out) {
+        const q = n.r;
+        const s = n.s;
+        const t = n.t;
         const x2 = q[0] + q[0];
         const y2 = q[1] + q[1];
         const z2 = q[2] + q[2];
@@ -857,35 +967,44 @@ __Boot()
         const wx = q[3] * x2;
         const wy = q[3] * y2;
         const wz = q[3] * z2;
-        return [(1 - (yy + zz)) * s[0], (xy + wz) * s[0], (xz - wy) * s[0], 0,
-            (xy - wz) * s[1], (1 - (xx + zz)) * s[1], (yz + wx) * s[1], 0,
-            (xz + wy) * s[2], (yz - wx) * s[2], (1 - (xx + yy)) * s[2], 0,
-            t[0], t[1], t[2], 1];
+        out[0] = (1 - (yy + zz)) * s[0];
+        out[1] = (xy + wz) * s[0];
+        out[2] = (xz - wy) * s[0];
+        out[3] = 0;
+        out[4] = (xy - wz) * s[1];
+        out[5] = (1 - (xx + zz)) * s[1];
+        out[6] = (yz + wx) * s[1];
+        out[7] = 0;
+        out[8] = (xz + wy) * s[2];
+        out[9] = (yz - wx) * s[2];
+        out[10] = (1 - (xx + yy)) * s[2];
+        out[11] = 0;
+        out[12] = t[0];
+        out[13] = t[1];
+        out[14] = t[2];
+        out[15] = 1;
     }
 
-    function glbMatMul(a, b) {
-        const o = new Array(16);
-        for (let c = 0; c < 4; c++) {
-            for (let r = 0; r < 4; r++) {
-                o[c * 4 + r] = a[r] * b[c * 4] + a[4 + r] * b[c * 4 + 1] + a[8 + r] * b[c * 4 + 2] + a[12 + r] * b[c * 4 + 3];
+    function nodeWorlds(root) {
+        const stack = [];
+        for (let i = 0; i < AV.roots.length; i++) {
+            const rid = AV.roots[i];
+            matInto(root, AV.nodes[rid].local, AV.nodes[rid].world);
+            stack.push(rid);
+            while (stack.length > 0) {
+                const id = stack.pop();
+                const pw = AV.nodes[id].world;
+                const kids = AV.nodes[id].kids;
+                for (let k = 0; k < kids.length; k++) {
+                    const c = AV.nodes[kids[k]];
+                    matInto(pw, c.local, c.world);
+                    stack.push(kids[k]);
+                }
             }
         }
-        return o;
     }
 
-    function glbXform(m, v) {
-        return [m[0] * v[0] + m[4] * v[1] + m[8] * v[2] + m[12], m[1] * v[0] + m[5] * v[1] + m[9] * v[2] + m[13], m[2] * v[0] + m[6] * v[1] + m[10] * v[2] + m[14]];
-    }
-
-    function glbNormal(m, v) {
-        const x = m[0] * v[0] + m[4] * v[1] + m[8] * v[2];
-        const y = m[1] * v[0] + m[5] * v[1] + m[9] * v[2];
-        const z = m[2] * v[0] + m[6] * v[1] + m[10] * v[2];
-        const l = Math.hypot(x, y, z) || 1;
-        return [x / l, y / l, z / l];
-    }
-
-    function loadLimbs() {
+    function loadAvatar() {
         fetch('assets/models/avatar_2008.glb').then(function (r) {
             if (!r.ok) {
                 throw new Error('http ' + r.status);
@@ -913,31 +1032,75 @@ __Boot()
                 throw new Error('bad glb');
             }
             const acc = function (id) { return glbAcc(json, bin, id); };
-            const found = {};
-            function walk(nid, pm) {
-                const n = json.nodes[nid];
-                const m = pm ? glbMatMul(pm, glbNodeMat(n)) : glbNodeMat(n);
-                if (n.mesh !== undefined && n.name) {
-                    found[n.name] = { mat: m, mesh: n.mesh };
-                }
-                const kids = n.children || [];
-                for (let i = 0; i < kids.length; i++) {
-                    walk(kids[i], m);
+            for (let i = 0; i < json.nodes.length; i++) {
+                const n = json.nodes[i];
+                const t = (n.translation || [0, 0, 0]).slice();
+                const r = (n.rotation || [0, 0, 0, 1]).slice();
+                const s = (n.scale || [1, 1, 1]).slice();
+                AV.nodes.push({
+                    name: n.name || '',
+                    t: t.slice(),
+                    r: r.slice(),
+                    s: s.slice(),
+                    dt: t,
+                    dr: r,
+                    kids: n.children || [],
+                    mesh: n.mesh,
+                    skin: n.skin,
+                    local: new Array(16),
+                    world: new Array(16)
+                });
+            }
+            for (let i = 0; i < AV.nodes.length; i++) {
+                const kids = AV.nodes[i].kids;
+                for (let k = 0; k < kids.length; k++) {
+                    AV.nodes[kids[k]].parent = i;
                 }
             }
-            const scene = json.scenes[json.scene || 0];
-            for (let i = 0; i < scene.nodes.length; i++) {
-                walk(scene.nodes[i], null);
+            AV.roots = json.scenes[json.scene || 0].nodes.slice();
+            const skins = [];
+            for (let i = 0; i < json.skins.length; i++) {
+                const sk = json.skins[i];
+                skins.push({ joints: sk.joints, inv: acc(sk.inverseBindMatrices) });
             }
-            for (const nm in found) {
-                const en = found[nm];
-                const mesh = json.meshes[en.mesh];
-                let minX = 1e9;
-                let minY = 1e9;
-                let minZ = 1e9;
-                let maxX = -1e9;
-                let maxY = -1e9;
-                let maxZ = -1e9;
+            const anims = json.animations || [];
+            for (let i = 0; i < anims.length; i++) {
+                const an = anims[i];
+                let dur = 0;
+                const chans = [];
+                for (let c = 0; c < an.channels.length; c++) {
+                    const sp = an.samplers[an.channels[c].sampler];
+                    const times = acc(sp.input);
+                    const vals = acc(sp.output);
+                    if (times.length > 0) {
+                        dur = Math.max(dur, times[times.length - 1][0]);
+                    }
+                    chans.push({ node: an.channels[c].target.node, path: an.channels[c].target.path, times: times, vals: vals });
+                }
+                AV.clips[an.name] = { dur: dur, chans: chans };
+            }
+            const tintOf = { Torso: 0, Head: 1, Left_Arm: 2, Right_Arm: 3, Left_Leg: 4, Right_Leg: 5 };
+            for (let i = 0; i < AV.nodes.length; i++) {
+                const n = AV.nodes[i];
+                if (n.mesh === undefined || !tintOf.hasOwnProperty(n.name)) {
+                    continue;
+                }
+                const mesh = json.meshes[n.mesh];
+                const skin = skins[n.skin];
+                let ji = 0;
+                const pr0 = mesh.primitives[0];
+                if (pr0.attributes.JOINTS_0 !== undefined && pr0.attributes.WEIGHTS_0 !== undefined) {
+                    const j0 = acc(pr0.attributes.JOINTS_0);
+                    const w0 = acc(pr0.attributes.WEIGHTS_0);
+                    let bw = -1;
+                    for (let k = 0; k < w0[0].length; k++) {
+                        if (w0[0][k] > bw) {
+                            bw = w0[0][k];
+                            ji = j0[0][k];
+                        }
+                    }
+                }
+                let total = 0;
                 const geos = [];
                 for (let p = 0; p < mesh.primitives.length; p++) {
                     const pr = mesh.primitives[p];
@@ -945,55 +1108,51 @@ __Boot()
                     const nor = pr.attributes.NORMAL !== undefined ? acc(pr.attributes.NORMAL) : null;
                     const idx = pr.indices !== undefined ? acc(pr.indices) : null;
                     geos.push({ pos: pos, nor: nor, idx: idx });
-                    for (let i = 0; i < pos.length; i++) {
-                        const wp = glbXform(en.mat, pos[i]);
-                        if (wp[0] < minX) { minX = wp[0]; }
-                        if (wp[0] > maxX) { maxX = wp[0]; }
-                        if (wp[1] < minY) { minY = wp[1]; }
-                        if (wp[1] > maxY) { maxY = wp[1]; }
-                        if (wp[2] < minZ) { minZ = wp[2]; }
-                        if (wp[2] > maxZ) { maxZ = wp[2]; }
-                    }
-                }
-                const cx = (minX + maxX) / 2;
-                const piece = nm === 'Torso' ? 0 : (nm === 'Head' ? 1 : (nm.indexOf('Arm') >= 0 ? (cx >= 0 ? 2 : 3) : (nm.indexOf('Leg') >= 0 ? (cx >= 0 ? 4 : 5) : -1)));
-                if (piece < 0) {
-                    continue;
-                }
-                const dims = limbDims[piece];
-                const gx = (maxX - minX) || 1;
-                const gy = (maxY - minY) || 1;
-                const gz = (maxZ - minZ) || 1;
-                let total = 0;
-                for (let p = 0; p < geos.length; p++) {
-                    total += geos[p].idx ? geos[p].idx.length : geos[p].pos.length;
+                    total += idx ? idx.length : pos.length;
                 }
                 const arr = new Float32Array(total * 6);
-                let n = 0;
+                let o = 0;
                 for (let p = 0; p < geos.length; p++) {
                     const g = geos[p];
                     const cnt = g.idx ? g.idx.length : g.pos.length;
-                    for (let i = 0; i < cnt; i++) {
-                        const vi = g.idx ? g.idx[i][0] : i;
-                        const wp = glbXform(en.mat, g.pos[vi]);
-                        const wn = g.nor ? glbNormal(en.mat, g.nor[vi]) : [0, 1, 0];
-                        arr[n] = (wp[0] - cx) * dims[0] / gx;
-                        arr[n + 1] = (wp[1] - (minY + maxY) / 2) * dims[1] / gy;
-                        arr[n + 2] = (wp[2] - (minZ + maxZ) / 2) * dims[2] / gz;
-                        const nx = wn[0] * dims[0] / gx;
-                        const ny = wn[1] * dims[1] / gy;
-                        const nz = wn[2] * dims[2] / gz;
-                        const nl = Math.hypot(nx, ny, nz) || 1;
-                        arr[n + 3] = nx / nl;
-                        arr[n + 4] = ny / nl;
-                        arr[n + 5] = nz / nl;
-                        n += 6;
+                    for (let v = 0; v < cnt; v++) {
+                        const vi = g.idx ? g.idx[v][0] : v;
+                        const p3 = g.pos[vi];
+                        const n3 = g.nor ? g.nor[vi] : [0, 1, 0];
+                        arr[o] = p3[0];
+                        arr[o + 1] = p3[1];
+                        arr[o + 2] = p3[2];
+                        arr[o + 3] = n3[0];
+                        arr[o + 4] = n3[1];
+                        arr[o + 5] = n3[2];
+                        o += 6;
                     }
                 }
-                if (n > 0) {
-                    limbMeshes[piece] = GL.upload(arr, 6);
+                AV.limbs.push({ tint: tintOf[n.name], joint: skin.joints[ji], inv: skin.inv[ji], mesh: GL.upload(arr, 6) });
+                if (n.name === 'Torso') {
+                    let sx = 0;
+                    let sy = 0;
+                    let sz = 0;
+                    let c = 0;
+                    for (let p = 0; p < geos.length; p++) {
+                        for (let v = 0; v < geos[p].pos.length; v++) {
+                            sx += geos[p].pos[v][0];
+                            sy += geos[p].pos[v][1];
+                            sz += geos[p].pos[v][2];
+                            c++;
+                        }
+                    }
+                    if (c > 0) {
+                        AV.bct = [sx / c, sy / c, sz / c];
+                    }
                 }
             }
+            for (let i = 0; i < AV.nodes.length; i++) {
+                if (AV.nodes[i].name === 'RightShoulder') {
+                    AV.rsNode = i;
+                }
+            }
+            AV.ready = AV.limbs.length === 6 && !!AV.clips.Idle && !!AV.clips.Walk;
         }).catch(function () {
         });
     }
@@ -1034,24 +1193,79 @@ __Boot()
     }
 
     const modelBuf = new Float32Array(16);
+    const rootMat = new Array(16);
+    const limbModel = new Float32Array(16);
+
+    function drawAvatar(cam, base, st, mats, cols, now) {
+        const o = base * 16;
+        const yaw = Math.atan2(mats[o + 6], mats[o + 4]);
+        const cx = mats[o + 10];
+        const cyy = mats[o + 11];
+        const czz = mats[o + 12];
+        const a = Math.cos(yaw);
+        const b = Math.sin(yaw);
+        const bx = AV.bct[0];
+        const by = AV.bct[1];
+        const bz = AV.bct[2];
+        rootMat[0] = a;
+        rootMat[1] = 0;
+        rootMat[2] = -b;
+        rootMat[3] = 0;
+        rootMat[4] = 0;
+        rootMat[5] = 1;
+        rootMat[6] = 0;
+        rootMat[7] = 0;
+        rootMat[8] = b;
+        rootMat[9] = 0;
+        rootMat[10] = a;
+        rootMat[11] = 0;
+        rootMat[12] = cx - (a * bx + b * bz);
+        rootMat[13] = cyy - by;
+        rootMat[14] = czz - (b * bx - a * bz);
+        rootMat[15] = 1;
+        animReset();
+        const clip = st === 1 ? AV.clips.Walk : (st === 2 ? AV.clips.Jump : (st === 3 ? AV.clips.Fall : AV.clips.Idle));
+        animApply(clip, now, -1);
+        if (base === 0) {
+            if (now < useFlashUntil) {
+                animApply(AV.clips.ToolSlash, now - useFlashStart, AV.rsNode);
+            } else if (equippedIdx >= 0) {
+                animApply(AV.clips.ToolHold, now, AV.rsNode);
+            }
+        }
+        for (let i = 0; i < AV.nodes.length; i++) {
+            nodeLocal(AV.nodes[i], AV.nodes[i].local);
+        }
+        nodeWorlds(rootMat);
+        for (let i = 0; i < AV.limbs.length; i++) {
+            const lb = AV.limbs[i];
+            matInto(AV.nodes[lb.joint].world, lb.inv, limbModel);
+            const co = (base + lb.tint) * 4;
+            GL.drawMesh(lb.mesh, { cam: cam, model: limbModel, color: [cols[co], cols[co + 1], cols[co + 2], 1] });
+        }
+    }
 
     function drawPieces(cam) {
-        const n = Math.min(E.piecesCount(), 17) * 6;
-        if (n < 1) {
+        const groups = Math.min(E.piecesCount(), 18);
+        if (groups < 1) {
             return;
         }
         syncMem();
-        const mats = new Float32Array(E.memory.buffer, E.piecesMatPtr(), n * 16);
-        const cols = new Float32Array(E.memory.buffer, E.piecesColPtr(), n * 4);
-        for (let i = 0; i < n; i++) {
-            pieceModel(modelBuf, mats, i * 16);
-            const o = i * 4;
-            const tint = [cols[o], cols[o + 1], cols[o + 2], 1];
-            const limb = limbMeshes[i % 6];
-            if (limb) {
-                GL.drawMesh(limb, { cam: cam, model: modelBuf, color: tint });
+        const mats = new Float32Array(E.memory.buffer, E.piecesMatPtr(), groups * 6 * 16);
+        const cols = new Float32Array(E.memory.buffer, E.piecesColPtr(), groups * 6 * 4);
+        const now = performance.now() / 1000;
+        for (let g = 0; g < groups; g++) {
+            const base = g * 6;
+            const st = mats[base * 16 + 13];
+            if (!AV.ready || st < 0) {
+                for (let i = 0; i < 6; i++) {
+                    pieceModel(modelBuf, mats, (base + i) * 16);
+                    const co = (base + i) * 4;
+                    const tint = [cols[co], cols[co + 1], cols[co + 2], 1];
+                    GL.drawMesh(cubeMesh, { cam: cam, model: modelBuf, color: tint });
+                }
             } else {
-                GL.drawMesh(cubeMesh, { cam: cam, model: modelBuf, color: tint });
+                drawAvatar(cam, base, st, mats, cols, now);
             }
         }
     }
@@ -1268,6 +1482,8 @@ __Boot()
         if (!E || equippedIdx < 0) {
             return;
         }
+        useFlashStart = performance.now() / 1000;
+        useFlashUntil = useFlashStart + 0.3;
         E.toolUse();
     }
 

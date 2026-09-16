@@ -11,26 +11,24 @@ function header(ctx, pageTitle) {
         auth = '<a href="login">Login</a> <span class="pipe">|</span> <a href="register">Sign Up</a>';
     }
     let strip = '';
-    strip += '<a href="' + (cur !== null ? 'my' : 'index') + '">My WallOfBricks</a> <span class="pipe">|</span> ';
-    strip += '<a href="character">Character</a> <span class="pipe">|</span> ';
-    strip += '<a href="games">Games</a> <span class="pipe">|</span> ';
-    strip += '<a href="people">Browse</a> <span class="pipe">|</span> ';
-    strip += '<a href="forum">Forum</a> <span class="pipe">|</span> ';
-    strip += '<a href="news">News</a>';
-    if (cur !== null) {
-        strip += ' <span class="pipe">|</span> <a href="settings">My Account</a>';
-    }
+    strip += '<a class="nav-menu-title text-header" href="' + (cur !== null ? 'my' : 'index') + '">My WallOfBricks</a>';
+    strip += '<a class="nav-menu-title text-header" href="character">Character</a>';
+    strip += '<a class="nav-menu-title text-header" href="games">Games</a>';
+    strip += '<a class="nav-menu-title text-header" href="people">Browse</a>';
+    strip += '<a class="nav-menu-title text-header" href="forum">Forum</a>';
+    strip += '<a class="nav-menu-title text-header" href="news">News</a>';
     let topauth = '';
     if (cur !== null) {
         topauth = '<a class="UserChip" href="profile?u=' + esc(encodeURIComponent(cur.username)) + '"><span class="UserTile">' + esc(cur.username.slice(0, 1).toUpperCase()) + '</span><span class="UserName">' + esc(cur.username) + '</span></a>';
     } else {
-        topauth = '<a class="TopLogin" href="login">Log In</a><a class="TopSignup" href="register">Sign Up</a>';
+        topauth = '<a class="TopLogin nav-menu-title" href="login">Log In</a><a class="TopSignup" href="register">Sign Up</a>';
     }
     return '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<title>' + esc(pageTitle || CFG.site) + '</title>\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<link rel="stylesheet" href="assets/css/styles.css?v=' + CFG.assetVersion + '">\n<link rel="Shortcut Icon" type="image/png" href="assets/img/favicon.png">\n</head>\n<body>\n'
-        + '<div class="masthead">\n<a class="homelink" href="' + home + '"><img class="logo" src="assets/images/wob_logo.png" alt="WallOfBricks"></a>\n'
-        + '<form class="topsearch" method="get" action="people"><input class="topsearchbox" type="text" name="q" maxlength="20" placeholder="Search"></form>\n'
-        + '<div class="topauth">' + topauth + '</div>\n</div>\n'
-        + '<div class="navstrip">\n<span class="navlinks">' + strip + '</span>\n<span class="navauth">' + auth + '</span>\n</div>\n'
+        + '<div id="navigation-container" class="light-theme">\n<div id="header" class="rbx-header masthead" role="navigation">\n<div class="container-fluid">\n'
+        + '<div class="rbx-navbar-header">\n<button id="header-menu-icon" class="rbx-nav-collapse linklike" type="button" aria-label="Menu"><span class="MenuLines"><i></i><i></i><i></i></span></button>\n<a class="navbar-brand homelink" href="' + home + '"><img class="logo" src="assets/images/wob_logo.png" alt="WallOfBricks"></a>\n</div>\n'
+        + '<div class="rbx-navbar navstrip"><span class="navlinks">' + strip + '</span>\n<span class="navauth">' + (cur !== null ? auth : '') + '</span></div>\n'
+        + '<div class="rbx-navbar-right topauth">\n<form class="topsearch navbar-search" method="get" action="people"><input class="topsearchbox new-input-field" type="text" name="q" maxlength="20" placeholder="Search"></form>\n'
+        + '<div class="topauthslot">' + topauth + '</div>\n</div>\n</div>\n</div>\n</div>\n'
         + flashHtml(ctx);
 }
 
@@ -45,7 +43,13 @@ function csrfField(ctx) {
 }
 
 function footer(ctx, extra) {
-    return (extra || '') + '<div class="sitefoot"><span class="footlinks"><a href="games">Games</a><a href="forum">Forum</a><a href="news">News</a><a href="people">People</a></span><br>© WallOfBricks 2026</div>\n<script src="assets/js/main.js?v=' + CFG.assetVersion + '"></script>\n</body>\n</html>';
+    return (extra || '') + '<footer class="container-footer sitefoot">\n<div class="footer">\n<div class="footer-links">\n'
+        + '<span class="footer-link"><a class="text-footer-nav" href="games">Games</a></span>'
+        + '<span class="footer-link"><a class="text-footer-nav" href="forum">Forum</a></span>'
+        + '<span class="footer-link"><a class="text-footer-nav" href="news">News</a></span>'
+        + '<span class="footer-link"><a class="text-footer-nav" href="people">People</a></span>'
+        + '<span class="footer-link"><a class="text-footer-nav" href="help">Help</a></span>\n'
+        + '</div>\n<div class="copyright-container"><div class="footer-note">© WallOfBricks 2026</div></div>\n</div>\n</footer>\n<script src="assets/js/main.js?v=' + CFG.assetVersion + '"></script>\n</body>\n</html>';
 }
 
 function downPage() {
