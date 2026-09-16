@@ -152,10 +152,27 @@
         return GL.upload(new Float32Array(E.memory.buffer, ptr, len).slice(), stride);
     }
 
+    function refreshMesh(m, ptr, len) {
+        if (m === null) {
+            m = uploadFrom(ptr, Math.max(12, len), 12);
+            if (len < 1) {
+                m.n = 0;
+            }
+            return m;
+        }
+        if (len < 1) {
+            m.n = 0;
+            return m;
+        }
+        syncMem();
+        GL.update(m, new Float32Array(E.memory.buffer, ptr, len).slice());
+        return m;
+    }
+
     function refreshMeshes() {
-        studsMesh = uploadFrom(E.stMeshStudsPtr(), E.stMeshStudsLen(), 12);
-        plainMesh = uploadFrom(E.stMeshPlainPtr(), E.stMeshPlainLen(), 12);
-        spawnMesh = uploadFrom(E.stMeshSpawnPtr(), E.stMeshSpawnLen(), 12);
+        studsMesh = refreshMesh(studsMesh, E.stMeshStudsPtr(), E.stMeshStudsLen());
+        plainMesh = refreshMesh(plainMesh, E.stMeshPlainPtr(), E.stMeshPlainLen());
+        spawnMesh = refreshMesh(spawnMesh, E.stMeshSpawnPtr(), E.stMeshSpawnLen());
     }
 
     function hexInt(h, def) {

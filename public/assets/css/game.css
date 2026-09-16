@@ -261,23 +261,6 @@ html, body {
     font-family: 'Source Sans Pro', Verdana, Arial, sans-serif;
 }
 
-#UseButton {
-    width: 58px;
-    height: 30px;
-    background: rgba(240, 200, 60, 0.92);
-    border: 2px solid #4a3c00;
-    color: #221a00;
-    font-family: 'Source Sans Pro', Verdana, Arial, sans-serif;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    display: none;
-}
-
-#UseButton:hover {
-    background: rgba(250, 220, 100, 0.98);
-}
-
 #HealthBar {
     width: 140px;
     height: 14px;

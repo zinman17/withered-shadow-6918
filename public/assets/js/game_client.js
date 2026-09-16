@@ -1166,11 +1166,28 @@ __Boot()
         });
     }
 
+    function refreshMesh(m, ptr, len) {
+        if (m === null) {
+            m = uploadFrom(ptr, Math.max(12, len), 12);
+            if (len < 1) {
+                m.n = 0;
+            }
+            return m;
+        }
+        if (len < 1) {
+            m.n = 0;
+            return m;
+        }
+        syncMem();
+        GL.update(m, new Float32Array(E.memory.buffer, ptr, len).slice());
+        return m;
+    }
+
     function refreshWorld() {
-        studsMesh = uploadFrom(E.meshStudsPtr(), E.meshStudsLen(), 12);
-        plainMesh = uploadFrom(E.meshPlainPtr(), E.meshPlainLen(), 12);
-        spawnMesh = uploadFrom(E.meshSpawnPtr(), E.meshSpawnLen(), 12);
-        transMesh = uploadFrom(E.meshTransPtr(), E.meshTransLen(), 12);
+        studsMesh = refreshMesh(studsMesh, E.meshStudsPtr(), E.meshStudsLen());
+        plainMesh = refreshMesh(plainMesh, E.meshPlainPtr(), E.meshPlainLen());
+        spawnMesh = refreshMesh(spawnMesh, E.meshSpawnPtr(), E.meshSpawnLen());
+        transMesh = refreshMesh(transMesh, E.meshTransPtr(), E.meshTransLen());
     }
 
     function pieceModel(out, d, o) {
@@ -1481,7 +1498,6 @@ __Boot()
     }
 
     const hotbarEl = document.getElementById('Hotbar');
-    const useBtn = document.getElementById('UseButton');
     const crossEl = document.getElementById('Crosshair');
     const healthFill = document.getElementById('HealthFill');
     let equippedIdx = -1;
@@ -1500,9 +1516,6 @@ __Boot()
         const on = equippedIdx >= 0;
         const code = on && world.tools[equippedIdx] ? String(world.tools[equippedIdx].code || '') : '';
         const weapon = /damage|shoot|melee/i.test(code);
-        if (useBtn) {
-            useBtn.style.display = on ? 'block' : 'none';
-        }
         if (crossEl) {
             crossEl.style.display = on && weapon ? 'block' : 'none';
         }
@@ -1559,14 +1572,6 @@ __Boot()
         useFlashStart = performance.now() / 1000;
         useFlashUntil = useFlashStart + 0.3;
         E.toolUse();
-    }
-
-    if (useBtn) {
-        useBtn.addEventListener('click', function (ev) {
-            ev.preventDefault();
-            useTool();
-            useBtn.blur();
-        });
     }
 
     function buildGuiLayer() {
@@ -1999,13 +2004,13 @@ __Boot()
             return;
         }
         const t = ev.changedTouches[0];
-        tapX = t.clientX;
-        tapY = t.clientY;
-        tapMoved = 0;
         if (lookId === -1) {
             lookId = t.identifier;
             lookX = t.clientX;
             lookY = t.clientY;
+            tapX = t.clientX;
+            tapY = t.clientY;
+            tapMoved = 0;
         }
     }, { passive: true });
 
@@ -2023,7 +2028,7 @@ __Boot()
                     E.camDrag(dx, dy);
                 }
             }
-            if (Math.abs(t.clientX - tapX) + Math.abs(t.clientY - tapY) > 12) {
+            if (t.identifier === lookId && Math.abs(t.clientX - tapX) + Math.abs(t.clientY - tapY) > 12) {
                 tapMoved = 1;
             }
         }
@@ -2031,22 +2036,15 @@ __Boot()
 
     window.addEventListener('touchend', function (ev) {
         for (let i = 0; i < ev.changedTouches.length; i++) {
-            if (ev.changedTouches[i].identifier === lookId) {
+            const t = ev.changedTouches[i];
+            if (t.identifier === lookId) {
                 lookId = -1;
+                if (E && tapMoved === 0) {
+                    useTool();
+                }
+                tapMoved = 1;
             }
         }
-        if (!E) {
-            return;
-        }
-        for (let i = 0; i < ev.changedTouches.length; i++) {
-            if (ev.changedTouches[i].identifier === stickId) {
-                return;
-            }
-        }
-        if (tapMoved === 0) {
-            useTool();
-        }
-        tapMoved = 1;
     }, { passive: true });
 
     const jumpBtn = document.getElementById('JumpButton');
@@ -2054,6 +2052,7 @@ __Boot()
         jumpBtn.addEventListener('touchstart', function (ev) {
             ev.preventDefault();
             jumpHeld = true;
+            tapMoved = 1;
             jumpBtn.classList.add('Jumping');
             if (E) {
                 E.key(4, 1);
