@@ -1,6 +1,6 @@
 const CFG = {
     site: 'WallOfBricks',
-    assetVersion: '31',
+    assetVersion: '32',
     gamesPerPlayer: 3,
     loginMaxAttempts: 5,
     loginLockMinutes: 15,
@@ -58,9 +58,9 @@ const BASE_HEADERS = {
     'Permissions-Policy': 'camera=(), microphone=(), geolocation=()'
 };
 
-const CSP_BASE = "default-src 'self'; img-src 'self'; style-src 'self'; font-src 'self'; script-src 'self'; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'self'";
-const CSP_WASM = "default-src 'self'; img-src 'self'; style-src 'self'; font-src 'self'; script-src 'self' 'wasm-unsafe-eval'; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'self'";
-const CSP_EVAL = "default-src 'self'; img-src 'self'; style-src 'self'; font-src 'self'; script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval'; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'self'";
+const CSP_BASE = "default-src 'self'; img-src 'self' data:; style-src 'self'; font-src 'self'; script-src 'self'; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'self'";
+const CSP_WASM = "default-src 'self'; img-src 'self' data:; style-src 'self'; font-src 'self'; script-src 'self' 'wasm-unsafe-eval'; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'self'";
+const CSP_EVAL = "default-src 'self'; img-src 'self' data:; style-src 'self'; font-src 'self'; script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval'; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'self'";
 
 function applySecurityHeaders(headers, csp, isHttps) {
     headers.set('X-Frame-Options', 'DENY');

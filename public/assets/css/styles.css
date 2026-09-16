@@ -11,7 +11,7 @@ html, body
 
 body
 {
-        font: normal 15px/1.5 'Source Sans Pro', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        font: normal 15px/1.5 'HCo Gotham SSm', 'Source Sans Pro', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
         color: #393b3d;
         margin: 0;
         padding: 0 0 12px 0;
@@ -50,329 +50,6 @@ a:hover
 {
         text-decoration: underline;
 }
-
-#navigation-container
-{
-        position: relative;
-}
-
-.masthead
-{
-        position: relative;
-        z-index: 100;
-        background: #dee1e3;
-        border-bottom: 1px solid #c7cbce;
-        min-height: 90px;
-        padding: 0 18px;
-}
-
-.masthead .container-fluid
-{
-        display: flex;
-        align-items: center;
-        min-height: 90px;
-        max-width: 1280px;
-        margin: 0 auto;
-        gap: 14px;
-}
-
-.rbx-navbar-header
-{
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        flex: none;
-}
-
-#header-menu-icon
-{
-        display: none;
-        background: none;
-        border: none;
-        padding: 8px;
-        margin: 0;
-        cursor: pointer;
-        line-height: 0;
-}
-
-.MenuLines
-{
-        display: inline-block;
-}
-
-.MenuLines i
-{
-        display: block;
-        width: 20px;
-        height: 2px;
-        background: #393b3d;
-        margin: 4px 0;
-        border-radius: 1px;
-}
-
-.masthead .navbar-brand
-{
-        display: inline-flex;
-        align-items: center;
-        padding: 5px 0;
-}
-
-.masthead .logo
-{
-        height: 26px;
-        vertical-align: middle;
-}
-
-.rbx-navbar
-{
-        margin: 4px auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex: 1 1 auto;
-}
-
-.topsearch
-{
-        flex: 0 1 300px;
-        max-width: 300px;
-        margin: 0;
-}
-
-.topsearchbox
-{
-        width: 100%;
-        max-width: 300px;
-        box-sizing: border-box;
-        background: #f2f4f5;
-        border: 1px solid #f2f4f5;
-        border-radius: 8px;
-        color: #393b3d;
-        font: inherit;
-        font-size: 14px;
-        padding: 7px 14px;
-        outline: none;
-}
-
-.topsearchbox:focus
-{
-        border-color: #c7cbce;
-        background: #ffffff;
-}
-
-.rbx-navbar-right
-{
-        margin-left: auto;
-        margin-right: 12px;
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        flex: none;
-}
-
-.topauthslot
-{
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        white-space: nowrap;
-}
-
-.TopLogin
-{
-        color: #393b3d;
-        font-weight: 600;
-}
-
-.TopSignup, .navstrip .TopSignup
-{
-        display: inline-block;
-        background: #00b06f;
-        color: #ffffff;
-        border-radius: 8px;
-        font-weight: 600;
-        padding: 6px 16px;
-}
-
-.TopSignup:hover
-{
-        background: #009a61;
-        text-decoration: none;
-}
-
-.UserChip
-{
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        color: #393b3d;
-        font-weight: 600;
-}
-
-.UserChip:hover
-{
-        text-decoration: none;
-        color: #0074bd;
-}
-
-.UserTile
-{
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        background: #00b06f;
-        color: #ffffff;
-        font-size: 14px;
-        font-weight: 700;
-}
-
-.UserName
-{
-        max-width: 160px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-}
-
-.navstrip
-{
-        position: relative;
-        background: transparent;
-        border-bottom: none;
-        text-align: center;
-        padding: 0;
-        min-height: 38px;
-}
-
-.navstrip a, .navstrip a:link, .navstrip a:visited, .navstrip a:active
-{
-        color: #393b3d;
-        text-decoration: none;
-        display: inline-block;
-        padding: 6px 9px;
-        font-size: 16px;
-        font-weight: 600;
-        border-bottom: 2px solid transparent;
-}
-
-.navstrip a:hover
-{
-        color: #393b3d;
-        text-decoration: none;
-        border-bottom: 2px solid #393b3d;
-}
-
-.navstrip .pipe
-{
-        color: #cdcdcd;
-}
-
-.navstrip button.linklike
-{
-        background: none;
-        border: none;
-        padding: 0;
-        margin: 0;
-        color: #393b3d;
-        font: inherit;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        text-decoration: none;
-}
-
-.navstrip button.linklike:hover
-{
-        color: #0074bd;
-        text-decoration: none;
-}
-
-.navauth
-{
-        margin-left: 10px;
-        white-space: nowrap;
-}
-
-.navauth a, .navauth a:link, .navauth a:visited, .navauth a:active
-{
-        color: #0074bd;
-        font-weight: 600;
-        font-size: 14px;
-        padding: 4px 6px;
-}
-
-.navauth .pipe
-{
-        color: #cdcdcd;
-}
-
-.navauth button.linklike
-{
-        font-size: 14px;
-        font-weight: 600;
-        color: #0074bd;
-}
-
-.inlineform
-{
-        display: inline;
-        margin: 0;
-}
-
-.sitefoot
-{
-        background: #f2f4f5;
-        border-top: 1px solid #c7cbce;
-        text-align: center;
-        color: #606162;
-        font-size: 12px;
-        margin: 34px 0 0 0;
-        padding: 20px 18px 26px 18px;
-}
-
-.sitefoot .footer
-{
-        max-width: 970px;
-        margin: 0 auto;
-}
-
-.sitefoot .footer-links
-{
-        padding-left: 0;
-        text-align: center;
-        margin: 20px auto 0 auto;
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: center;
-}
-
-.sitefoot .footer-link
-{
-        margin: 6px;
-        white-space: nowrap;
-}
-
-.sitefoot .text-footer-nav, .sitefoot .text-footer-nav:link, .sitefoot .text-footer-nav:visited
-{
-        color: #606162;
-        font-weight: 600;
-}
-
-.sitefoot .text-footer-nav:hover
-{
-        color: #393b3d;
-        text-decoration: none;
-}
-
-.sitefoot .footer-note
-{
-        text-align: center;
-        margin-top: 12px;
-}
-
 .bottombar
 {
         background: #ffffff;
@@ -764,68 +441,183 @@ table.Rows td
         font-weight: 700;
         margin-top: 8px;
 }
-
-@media (max-width: 970px)
+body
 {
-        #header-menu-icon
+        padding-top: 90px;
+}
+
+.rbx-header .navbar-brand
+{
+        display: inline-flex;
+        align-items: center;
+}
+
+.rbx-header .navbar-brand .icon-logo-img
+{
+        height: 25px;
+        width: auto;
+        display: block;
+}
+
+.rbx-header .navbar-brand .icon-logo-r
+{
+        margin-left: 8px;
+}
+
+.rbx-header .rbx-navbar-header
+{
+        max-width: none;
+}
+
+@media (min-width: 992px)
+{
+        .rbx-header .rbx-navbar-header
         {
-                display: inline-block;
+                margin-top: 26px;
         }
 
-        .masthead .container-fluid
+        .rbx-header .rbx-navbar
         {
-                flex-wrap: wrap;
-                padding: 8px 0;
-                min-height: 62px;
+                margin-top: 30px;
         }
 
-        .rbx-navbar.navstrip
+        .rbx-header .rbx-navbar-search
         {
-                display: none;
-                flex-basis: 100%;
+                margin-top: 28px;
         }
 
-        #navigation-container.nav-open .rbx-navbar.navstrip
+        .rbx-header .rbx-navbar-right
         {
-                display: flex;
-                flex-wrap: wrap;
-        }
-
-        .topsearch
-        {
-                flex: 1 1 auto;
-        }
-
-        .rbx-navbar-right
-        {
-                margin-right: 0;
+                margin-top: 22px;
         }
 }
 
-@media (max-width: 720px)
+.footer .footer-links .footer-link
 {
-        .topsearch
+        width: auto;
+        min-width: 0;
+        flex: 0 1 auto;
+        float: none;
+        padding: 6px;
+}
+
+.inlineform
+{
+        display: inline;
+        margin: 0;
+}
+
+#header-menu-icon
+{
+        width: 22px;
+        height: 16px;
+        margin: 6px;
+        background: linear-gradient(#393b3d, #393b3d) center / 100% 2px no-repeat;
+        position: relative;
+}
+
+#header-menu-icon::before
+{
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 2px;
+        background: #393b3d;
+}
+
+#header-menu-icon::after
+{
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 2px;
+        background: #393b3d;
+}
+
+.rbx-header button.linklike
+{
+        background: none;
+        border: none;
+        padding: 6px 9px;
+        margin: 0;
+        color: inherit;
+        font: inherit;
+        cursor: pointer;
+}
+
+.rbx-header button.linklike:hover
+{
+        text-decoration: underline;
+}
+
+.light-theme .rbx-header .icon-nav-search, .dark-theme .rbx-header .icon-nav-search
+{
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='10.5' cy='10.5' r='6' fill='none' stroke='%23757575' stroke-width='2.2'/%3E%3Cline x1='15.2' y1='15.2' x2='21' y2='21' stroke='%23757575' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-position: center;
+        background-size: 18px 18px;
+}
+
+.light-theme .rbx-header .icon-nav-search-white, .dark-theme .rbx-header .icon-nav-search-white
+{
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='10.5' cy='10.5' r='6' fill='none' stroke='%23ffffff' stroke-width='2.2'/%3E%3Cline x1='15.2' y1='15.2' x2='21' y2='21' stroke='%23ffffff' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-position: center;
+        background-size: 18px 18px;
+}
+
+.light-theme .rbx-header .icon-nav-settings, .dark-theme .rbx-header .icon-nav-settings
+{
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23757575' d='M19.4 13c0-.3.1-.6.1-1s0-.7-.1-1l2.1-1.7c.2-.2.3-.5.1-.7l-2-3.5c-.1-.2-.4-.3-.6-.2l-2.5 1c-.5-.4-1.1-.7-1.7-1l-.4-2.6c0-.3-.2-.5-.5-.5h-4c-.3 0-.5.2-.5.5l-.4 2.6c-.6.3-1.2.6-1.7 1l-2.5-1c-.2-.1-.5 0-.6.2l-2 3.5c-.2.2-.1.5.1.7L4.5 11c0 .3-.1.6-.1 1s0 .7.1 1l-2.1 1.7c-.2.2-.3.5-.1.7l2 3.5c.1.2.4.3.6.2l2.5-1c.5.4 1.1.7 1.7 1l.4 2.6c0 .3.2.5.5.5h4c.3 0 .5-.2.5-.5l.4-2.6c.6-.3 1.2-.6 1.7-1l2.5 1c.2.1.5 0 .6-.2l2-3.5c.2-.2.1-.5-.1-.7L19.4 13zM12 15.5c-1.9 0-3.5-1.6-3.5-3.5s1.6-3.5 3.5-3.5 3.5 1.6 3.5 3.5-1.6 3.5-3.5 3.5z'/%3E%3C/svg%3E");
+        background-position: center;
+        background-size: 30px 30px;
+}
+
+@media (min-width: 992px)
+{
+        .rbx-header
         {
-                order: 3;
-                flex-basis: 100%;
-                max-width: none;
+                height: 90px;
         }
 
-        .topauthslot
+        #header-menu-icon
         {
-                margin-left: auto;
+                display: none;
         }
+}
 
-        .navauth
+@media (max-width: 991px)
+{
+        #header-menu-icon
         {
                 display: block;
-                padding: 2px 0 8px 0;
-                text-align: center;
-                white-space: normal;
         }
 
-        .UserName
+        .rbx-navbar-right-nav li.signup-button-container, .rbx-navbar-right-nav li.login-action, .rbx-navbar-right-nav li.rbx-navbar-user-item, .rbx-navbar-right-nav li.rbx-navbar-logout-item
         {
-                max-width: 90px;
+                display: none;
+        }
+
+        #navigation-container.nav-open .rbx-navbar-right-nav
+        {
+                display: block;
+                position: absolute;
+                top: 100%;
+                right: 0;
+                margin: 0;
+                padding: 6px 0;
+                background: #dee1e3;
+                box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.4);
+                z-index: 3000;
+                min-width: 190px;
+        }
+
+        #navigation-container.nav-open .rbx-navbar-right-nav li.signup-button-container, #navigation-container.nav-open .rbx-navbar-right-nav li.login-action, #navigation-container.nav-open .rbx-navbar-right-nav li.rbx-navbar-user-item, #navigation-container.nav-open .rbx-navbar-right-nav li.rbx-navbar-logout-item
+        {
+                display: block;
+                float: none;
+                text-align: left;
         }
 }
