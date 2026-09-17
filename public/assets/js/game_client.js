@@ -1371,7 +1371,7 @@ __Boot()
         const g = c.getContext('2d');
         g.fillStyle = 'rgba(0, 0, 0, 0.45)';
         g.fillRect(0, 0, 256, 64);
-        g.font = 'bold 30px Source Sans Pro, Arial, sans-serif';
+        g.font = 'bold 30px Comic Neue, Arial, sans-serif';
         g.fillStyle = '#FFFFFF';
         g.textAlign = 'center';
         g.textBaseline = 'middle';

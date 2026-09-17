@@ -15,27 +15,8 @@ async function page(ctx, title, body, extraScript) {
     return htmlReply(L.header(ctx, title) + body + L.footer(ctx, extraScript), 200, ctx.responseHeaders());
 }
 
-async function index(ctx) {
-    const cur = ctx.user;
-    if (cur === null) {
-        return page(ctx, 'Home - WallOfBricks', L.homeContent);
-    }
-    return page(ctx, 'Home - WallOfBricks', L.homeContent);
-}
-
-async function apiHome(ctx) {
-    const cur = ctx.user;
-    const games = await ctx.db.all('SELECT g.id, g.name, g.visits, g.thumb, u.username AS creator FROM games g JOIN users u ON u.id = g.creator_id ORDER BY g.visits DESC, g.created DESC LIMIT 6');
-    const friends = await ctx.db.all('SELECT username FROM users WHERE id <> ? ORDER BY RANDOM() LIMIT 8', [cur !== null ? Number(cur.id) : 0]);
-    const outGames = [];
-    for (const g of games) {
-        outGames.push({ id: Number(g.id), name: String(g.name), creator: String(g.creator), thumb: H.gameThumbUrl(g), plays: H.num(g.visits) });
-    }
-    const outFriends = [];
-    for (const f of friends) {
-        outFriends.push({ name: String(f.username) });
-    }
-    return jsonReply({ user: cur !== null ? String(cur.username) : null, games: outGames, friends: outFriends });
+function index(ctx) {
+    return page(ctx, 'My WallOfBricks', '<div class="bottombar">\n<center><p>nothing here yet! go to other pages like go login or signup if havent or play games if did</p></center>\n</div>\n');
 }
 
 async function login(ctx) {
@@ -354,4 +335,4 @@ async function news(ctx) {
     return page(ctx, 'News - WallOfBricks', body);
 }
 
-module.exports = { requireLogin, page, index, apiHome, login, register, logout, my, settings, profile, people, forum, news };
+module.exports = { requireLogin, page, index, login, register, logout, my, settings, profile, people, forum, news };

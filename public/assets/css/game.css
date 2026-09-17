@@ -1,34 +1,35 @@
 @font-face {
-    font-family: 'Source Sans Pro';
-    src: url('../fonts/source-sans-pro-latin-400-normal.woff2') format('woff2'),
-         url('../fonts/source-sans-pro-latin-400-normal.woff') format('woff');
+    font-family: 'Comic Neue';
+    src: url('../fonts/ComicNeue-Regular.woff2') format('woff2'),
+         url('../fonts/ComicNeue-Regular.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
 }
 
 @font-face {
-    font-family: 'Source Sans Pro';
-    src: url('../fonts/source-sans-pro-latin-700-normal.woff2') format('woff2'),
-         url('../fonts/source-sans-pro-latin-700-normal.woff') format('woff');
+    font-family: 'Comic Neue';
+    src: url('../fonts/ComicNeue-Bold.woff2') format('woff2'),
+         url('../fonts/ComicNeue-Bold.ttf') format('truetype');
     font-weight: bold;
     font-style: normal;
     font-display: swap;
 }
 
 @font-face {
-    font-family: 'Source Sans Pro';
-    src: url('../fonts/source-sans-pro-latin-600-normal.woff2') format('woff2'),
-         url('../fonts/source-sans-pro-latin-600-normal.woff') format('woff');
-    font-weight: 600;
-    font-style: normal;
+    font-family: 'Comic Neue';
+    src: url('../fonts/ComicNeue-Italic.woff2') format('woff2'),
+         url('../fonts/ComicNeue-Italic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
     font-display: swap;
 }
 
 @font-face {
-    font-family: 'Source Sans Pro';
-    src: url('../fonts/source-sans-pro-latin-400-italic.woff2') format('woff2');
-    font-weight: normal;
+    font-family: 'Comic Neue';
+    src: url('../fonts/ComicNeue-BoldItalic.woff2') format('woff2'),
+         url('../fonts/ComicNeue-BoldItalic.ttf') format('truetype');
+    font-weight: bold;
     font-style: italic;
     font-display: swap;
 }
@@ -40,14 +41,14 @@ html, body {
     height: 100%;
     overflow: hidden;
     background: #6ea5ee;
-    font-family: 'Source Sans Pro', Verdana, Arial, sans-serif;
+    font-family: 'Comic Neue', Verdana, Arial, sans-serif;
 }
 
 #GameClient {
     position: relative;
     width: 100%;
     height: 100%;
-    font-family: 'Source Sans Pro', Verdana, Arial, sans-serif;
+    font-family: 'Comic Neue', Verdana, Arial, sans-serif;
     user-select: none;
 }
 
@@ -189,7 +190,7 @@ html, body {
     outline: none;
     padding: 0 8px;
     font-size: 13px;
-    font-family: 'Source Sans Pro', Verdana, Arial, sans-serif;
+    font-family: 'Comic Neue', Verdana, Arial, sans-serif;
     background: rgba(0, 0, 0, 0.12);
     color: #ffffff;
     height: 32px;
@@ -206,7 +207,7 @@ html, body {
     padding: 0 14px;
     font-size: 13px;
     font-weight: bold;
-    font-family: 'Source Sans Pro', Verdana, Arial, sans-serif;
+    font-family: 'Comic Neue', Verdana, Arial, sans-serif;
     background: rgba(0, 0, 0, 0.18);
     color: #ffffff;
     cursor: pointer;
@@ -225,7 +226,7 @@ html, body {
     border: 0;
     border-radius: 0;
     z-index: 28;
-    font-family: 'Source Sans Pro', Verdana, Arial, sans-serif;
+    font-family: 'Comic Neue', Verdana, Arial, sans-serif;
 }
 
 #PlayerListHead {
@@ -258,7 +259,7 @@ html, body {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-family: 'Source Sans Pro', Verdana, Arial, sans-serif;
+    font-family: 'Comic Neue', Verdana, Arial, sans-serif;
 }
 
 #HealthBar {
@@ -297,7 +298,7 @@ html, body {
     display: none;
     gap: 6px;
     z-index: 28;
-    font-family: 'Source Sans Pro', Verdana, Arial, sans-serif;
+    font-family: 'Comic Neue', Verdana, Arial, sans-serif;
 }
 
 .HotSlot {
@@ -308,7 +309,7 @@ html, body {
     border: 2px solid rgba(30, 30, 30, 0.55);
     border-radius: 0;
     color: #ffffff;
-    font-family: 'Source Sans Pro', Verdana, Arial, sans-serif;
+    font-family: 'Comic Neue', Verdana, Arial, sans-serif;
     font-size: 13px;
     font-weight: bold;
     cursor: pointer;
@@ -364,7 +365,7 @@ html, body {
     background: rgba(120, 120, 120, 0.75);
     border: 2px solid rgba(30, 30, 30, 0.55);
     color: #ffffff;
-    font-family: 'Source Sans Pro', Verdana, Arial, sans-serif;
+    font-family: 'Comic Neue', Verdana, Arial, sans-serif;
     font-size: 14px;
     font-weight: bold;
     cursor: pointer;

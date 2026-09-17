@@ -1,3 +1,8 @@
+html
+{
+        background: #e3e3e3;
+}
+
 html, body
 {
         -webkit-text-size-adjust: 100%;
@@ -6,7 +11,7 @@ html, body
 
 body
 {
-        font: normal 15px/1.5 'HCo Gotham SSm', 'Source Sans Pro', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        font: normal 15px/1.5 'Source Sans Pro', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
         color: #393b3d;
         margin: 0;
         padding: 0 0 12px 0;
@@ -45,6 +50,329 @@ a:hover
 {
         text-decoration: underline;
 }
+
+#navigation-container
+{
+        position: relative;
+}
+
+.masthead
+{
+        position: relative;
+        z-index: 100;
+        background: #dee1e3;
+        border-bottom: 1px solid #c7cbce;
+        min-height: 90px;
+        padding: 0 18px;
+}
+
+.masthead .container-fluid
+{
+        display: flex;
+        align-items: center;
+        min-height: 90px;
+        max-width: 1280px;
+        margin: 0 auto;
+        gap: 14px;
+}
+
+.rbx-navbar-header
+{
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex: none;
+}
+
+#header-menu-icon
+{
+        display: none;
+        background: none;
+        border: none;
+        padding: 8px;
+        margin: 0;
+        cursor: pointer;
+        line-height: 0;
+}
+
+.MenuLines
+{
+        display: inline-block;
+}
+
+.MenuLines i
+{
+        display: block;
+        width: 20px;
+        height: 2px;
+        background: #393b3d;
+        margin: 4px 0;
+        border-radius: 1px;
+}
+
+.masthead .navbar-brand
+{
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 0;
+}
+
+.masthead .logo
+{
+        height: 26px;
+        vertical-align: middle;
+}
+
+.rbx-navbar
+{
+        margin: 4px auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1 1 auto;
+}
+
+.topsearch
+{
+        flex: 0 1 300px;
+        max-width: 300px;
+        margin: 0;
+}
+
+.topsearchbox
+{
+        width: 100%;
+        max-width: 300px;
+        box-sizing: border-box;
+        background: #f2f4f5;
+        border: 1px solid #f2f4f5;
+        border-radius: 8px;
+        color: #393b3d;
+        font: inherit;
+        font-size: 14px;
+        padding: 7px 14px;
+        outline: none;
+}
+
+.topsearchbox:focus
+{
+        border-color: #c7cbce;
+        background: #ffffff;
+}
+
+.rbx-navbar-right
+{
+        margin-left: auto;
+        margin-right: 12px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex: none;
+}
+
+.topauthslot
+{
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        white-space: nowrap;
+}
+
+.TopLogin
+{
+        color: #393b3d;
+        font-weight: 600;
+}
+
+.TopSignup, .navstrip .TopSignup
+{
+        display: inline-block;
+        background: #00b06f;
+        color: #ffffff;
+        border-radius: 8px;
+        font-weight: 600;
+        padding: 6px 16px;
+}
+
+.TopSignup:hover
+{
+        background: #009a61;
+        text-decoration: none;
+}
+
+.UserChip
+{
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #393b3d;
+        font-weight: 600;
+}
+
+.UserChip:hover
+{
+        text-decoration: none;
+        color: #0074bd;
+}
+
+.UserTile
+{
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: #00b06f;
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 700;
+}
+
+.UserName
+{
+        max-width: 160px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+}
+
+.navstrip
+{
+        position: relative;
+        background: transparent;
+        border-bottom: none;
+        text-align: center;
+        padding: 0;
+        min-height: 38px;
+}
+
+.navstrip a, .navstrip a:link, .navstrip a:visited, .navstrip a:active
+{
+        color: #393b3d;
+        text-decoration: none;
+        display: inline-block;
+        padding: 6px 9px;
+        font-size: 16px;
+        font-weight: 600;
+        border-bottom: 2px solid transparent;
+}
+
+.navstrip a:hover
+{
+        color: #393b3d;
+        text-decoration: none;
+        border-bottom: 2px solid #393b3d;
+}
+
+.navstrip .pipe
+{
+        color: #cdcdcd;
+}
+
+.navstrip button.linklike
+{
+        background: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+        color: #393b3d;
+        font: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+}
+
+.navstrip button.linklike:hover
+{
+        color: #0074bd;
+        text-decoration: none;
+}
+
+.navauth
+{
+        margin-left: 10px;
+        white-space: nowrap;
+}
+
+.navauth a, .navauth a:link, .navauth a:visited, .navauth a:active
+{
+        color: #0074bd;
+        font-weight: 600;
+        font-size: 14px;
+        padding: 4px 6px;
+}
+
+.navauth .pipe
+{
+        color: #cdcdcd;
+}
+
+.navauth button.linklike
+{
+        font-size: 14px;
+        font-weight: 600;
+        color: #0074bd;
+}
+
+.inlineform
+{
+        display: inline;
+        margin: 0;
+}
+
+.sitefoot
+{
+        background: #f2f4f5;
+        border-top: 1px solid #c7cbce;
+        text-align: center;
+        color: #606162;
+        font-size: 12px;
+        margin: 34px 0 0 0;
+        padding: 20px 18px 26px 18px;
+}
+
+.sitefoot .footer
+{
+        max-width: 970px;
+        margin: 0 auto;
+}
+
+.sitefoot .footer-links
+{
+        padding-left: 0;
+        text-align: center;
+        margin: 20px auto 0 auto;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+}
+
+.sitefoot .footer-link
+{
+        margin: 6px;
+        white-space: nowrap;
+}
+
+.sitefoot .text-footer-nav, .sitefoot .text-footer-nav:link, .sitefoot .text-footer-nav:visited
+{
+        color: #606162;
+        font-weight: 600;
+}
+
+.sitefoot .text-footer-nav:hover
+{
+        color: #393b3d;
+        text-decoration: none;
+}
+
+.sitefoot .footer-note
+{
+        text-align: center;
+        margin-top: 12px;
+}
+
 .bottombar
 {
         background: #ffffff;
@@ -436,33 +764,68 @@ table.Rows td
         font-weight: 700;
         margin-top: 8px;
 }
-.inlineform
+
+@media (max-width: 970px)
 {
-        display: inline;
-        margin: 0;
+        #header-menu-icon
+        {
+                display: inline-block;
+        }
+
+        .masthead .container-fluid
+        {
+                flex-wrap: wrap;
+                padding: 8px 0;
+                min-height: 62px;
+        }
+
+        .rbx-navbar.navstrip
+        {
+                display: none;
+                flex-basis: 100%;
+        }
+
+        #navigation-container.nav-open .rbx-navbar.navstrip
+        {
+                display: flex;
+                flex-wrap: wrap;
+        }
+
+        .topsearch
+        {
+                flex: 1 1 auto;
+        }
+
+        .rbx-navbar-right
+        {
+                margin-right: 0;
+        }
 }
 
-.footer .footer-links .footer-link
+@media (max-width: 720px)
 {
-        width: auto;
-        min-width: 0;
-        flex: 0 1 auto;
-        float: none;
-        padding: 6px;
-}
+        .topsearch
+        {
+                order: 3;
+                flex-basis: 100%;
+                max-width: none;
+        }
 
-.rbx-header button.linklike
-{
-        background: none;
-        border: none;
-        padding: 6px 9px;
-        margin: 0;
-        color: inherit;
-        font: inherit;
-        cursor: pointer;
-}
+        .topauthslot
+        {
+                margin-left: auto;
+        }
 
-.rbx-header button.linklike:hover
-{
-        text-decoration: underline;
+        .navauth
+        {
+                display: block;
+                padding: 2px 0 8px 0;
+                text-align: center;
+                white-space: normal;
+        }
+
+        .UserName
+        {
+                max-width: 90px;
+        }
 }

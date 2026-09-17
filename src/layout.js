@@ -1,50 +1,41 @@
 const { CFG, esc } = require('./kit');
 const { csrfToken } = require('./auth');
-const WB = require('./wb2020_chrome');
-
-function rightNav(ctx) {
-    const cur = ctx.user;
-    let out = '';
-    out += '<ul class="nav navbar-right rbx-navbar-right nav-menu-right" id="navbar-right">\n';
-    out += '<li class="rbx-navbar-right-search" role="search">\n'
-        + '<form class="form-horizontal" method="get" action="people">\n'
-        + '<div class="form-group has-feedback has-clear-left">\n'
-        + '<input id="navbar-search-input" class="form-control input-field" type="text" name="q" maxlength="100" placeholder="Search" autocomplete="off">\n'
-        + '<span class="form-control-feedback icon-search"></span>\n'
-        + '</div>\n</form>\n</li>\n';
-    if (cur !== null) {
-        out += '<li class="age-bracket-label"><span class="age-bracket-label-username"><a class="text-header nav-menu-title" href="profile?u=' + esc(encodeURIComponent(cur.username)) + '">' + esc(cur.username) + '</a></span><span class="age-bracket-label-text">13+</span></li>\n';
-        out += '<li id="navbar-robux"><a class="rbx-menu-item cursor-pointer" href="my"><span class="icon-nav-robux"></span><span class="text-header" id="nav-robux-amount">0</span></a></li>\n';
-        out += '<li id="navbar-notifications"><a class="rbx-menu-item cursor-pointer" href="forum"><span class="icon-nav-notification-stream"></span></a></li>\n';
-        out += '<li id="navbar-setting"><a class="rbx-menu-item cursor-pointer" href="settings"><span class="icon-nav-settings"></span></a></li>\n';
-        out += '<li id="navbar-logout"><form method="post" action="logout" class="inlineform">' + csrfField(ctx) + '<button type="submit" class="linklike nav-menu-title text-header">Logout</button></form></li>\n';
-    } else {
-        out += '<li class="signup-button-action"><a id="sign-up-button" class="btn-primary-md signup-button" href="register">Sign Up</a></li>\n';
-        out += '<li class="login-action"><a class="rbx-navbar-login nav-menu-title rbx-menu-item" href="login">Log In</a></li>\n';
-    }
-    out += '</ul>\n';
-    return out;
-}
 
 function header(ctx, pageTitle) {
     const cur = ctx.user;
-    return WB.fill(WB.top, {
-        title: esc(pageTitle || CFG.site),
-        csrf: esc(csrfToken(ctx.session)),
-        pageName: esc(pageTitle || 'Home'),
-        wrapClass: cur !== null ? 'logged-in' : '',
-        home: cur !== null ? 'my' : 'index',
-        auth: cur !== null ? 'true' : 'false',
-        rightNav: rightNav(ctx),
-        flash: flashHtml(ctx),
-        ver: CFG.assetVersion
-    });
+    const home = cur !== null ? 'my' : 'index';
+    let auth;
+    if (cur !== null) {
+        auth = '<form method="post" action="logout" class="inlineform">' + csrfField(ctx) + '<button type="submit" class="linklike">Logout</button></form>';
+    } else {
+        auth = '<a href="login">Login</a> <span class="pipe">|</span> <a href="register">Sign Up</a>';
+    }
+    let strip = '';
+    strip += '<a class="nav-menu-title text-header" href="' + (cur !== null ? 'my' : 'index') + '">My WallOfBricks</a>';
+    strip += '<a class="nav-menu-title text-header" href="character">Character</a>';
+    strip += '<a class="nav-menu-title text-header" href="games">Games</a>';
+    strip += '<a class="nav-menu-title text-header" href="people">Browse</a>';
+    strip += '<a class="nav-menu-title text-header" href="forum">Forum</a>';
+    strip += '<a class="nav-menu-title text-header" href="news">News</a>';
+    let topauth = '';
+    if (cur !== null) {
+        topauth = '<a class="UserChip" href="profile?u=' + esc(encodeURIComponent(cur.username)) + '"><span class="UserTile">' + esc(cur.username.slice(0, 1).toUpperCase()) + '</span><span class="UserName">' + esc(cur.username) + '</span></a>';
+    } else {
+        topauth = '<a class="TopLogin nav-menu-title" href="login">Log In</a><a class="TopSignup" href="register">Sign Up</a>';
+    }
+    return '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<title>' + esc(pageTitle || CFG.site) + '</title>\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<link rel="stylesheet" href="assets/css/styles.css?v=' + CFG.assetVersion + '">\n<link rel="Shortcut Icon" type="image/png" href="assets/img/favicon.png">\n</head>\n<body>\n'
+        + '<div id="navigation-container" class="light-theme">\n<div id="header" class="rbx-header masthead" role="navigation">\n<div class="container-fluid">\n'
+        + '<div class="rbx-navbar-header">\n<button id="header-menu-icon" class="rbx-nav-collapse linklike" type="button" aria-label="Menu"><span class="MenuLines"><i></i><i></i><i></i></span></button>\n<a class="navbar-brand homelink" href="' + home + '"><img class="logo" src="assets/images/wob_logo.png" alt="WallOfBricks"></a>\n</div>\n'
+        + '<div class="rbx-navbar navstrip"><span class="navlinks">' + strip + '</span>\n<span class="navauth">' + (cur !== null ? auth : '') + '</span></div>\n'
+        + '<div class="rbx-navbar-right topauth">\n<form class="topsearch navbar-search" method="get" action="people"><input class="topsearchbox new-input-field" type="text" name="q" maxlength="20" placeholder="Search"></form>\n'
+        + '<div class="topauthslot">' + topauth + '</div>\n</div>\n</div>\n</div>\n</div>\n'
+        + flashHtml(ctx);
 }
 
 function flashHtml(ctx) {
     const f = ctx.flash;
     if (!f) { return ''; }
-    return '<div class="' + (f.type === 'ok' ? 'alert-success' : 'alert-warning') + '" role="alert">' + esc(f.text) + '</div>\n';
+    return '<div class="Flash' + (f.type === 'ok' ? '' : ' Flash-err') + '"><center>' + esc(f.text) + '</center></div>\n';
 }
 
 function csrfField(ctx) {
@@ -52,11 +43,14 @@ function csrfField(ctx) {
 }
 
 function footer(ctx, extra) {
-    return WB.tail.replace('<!--Bootstrap Footer React Component -->', (extra || '') + '<!--Bootstrap Footer React Component -->')
-        + '<script src="assets/js/main.js?v=' + CFG.assetVersion + '"></script>\n</body>\n</html>';
+    return (extra || '') + '<footer class="container-footer sitefoot">\n<div class="footer">\n<div class="footer-links">\n'
+        + '<span class="footer-link"><a class="text-footer-nav" href="games">Games</a></span>'
+        + '<span class="footer-link"><a class="text-footer-nav" href="forum">Forum</a></span>'
+        + '<span class="footer-link"><a class="text-footer-nav" href="news">News</a></span>'
+        + '<span class="footer-link"><a class="text-footer-nav" href="people">People</a></span>'
+        + '<span class="footer-link"><a class="text-footer-nav" href="help">Help</a></span>\n'
+        + '</div>\n<div class="copyright-container"><div class="footer-note">© WallOfBricks 2026</div></div>\n</div>\n</footer>\n<script src="assets/js/main.js?v=' + CFG.assetVersion + '"></script>\n</body>\n</html>';
 }
-
-const homeContent = WB.home;
 
 function downPage() {
     return '<!doctype html><html><head><title>WallOfBricks</title></head><body style=font-family:Helvetica,Arial,sans-serif;background:#e3e3e3><div style=text-align:center;margin-top:90px><h1>WallOfBricks is not ready yet</h1><p>Try again soon.</p><p><a href=/>Back to WallOfBricks</a></p></div></body></html>';
@@ -70,4 +64,4 @@ function csrfBlockPage() {
     return '<!doctype html><html><head><title>WallOfBricks</title></head><body style=font-family:Helvetica,Arial,sans-serif;background:#e3e3e3><div style=text-align:center;margin-top:90px><h1>Request blocked</h1><p>That action did not pass the security check.</p><p><a href=/>Back to WallOfBricks</a></p></div></body></html>';
 }
 
-module.exports = { header, footer, homeContent, csrfField, downPage, errorPage, csrfBlockPage };
+module.exports = { header, footer, csrfField, downPage, errorPage, csrfBlockPage };

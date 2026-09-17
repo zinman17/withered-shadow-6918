@@ -44,19 +44,9 @@ const ROUTES = [
     ['GET', '/studio', game.studio],
     ['GET', '/api_studio', game.apiStudio],
     ['POST', '/api_studio', game.apiStudio],
-    ['GET', '/api_home', social.apiHome],
-    ['GET', '/user-sponsorship/2', sponsorBlank],
     ['POST', '/api/mp/sync', mp.sync],
     ['POST', '/api/mp/chat', mp.chat]
 ];
-
-function sponsorBlank(ctx) {
-    const h = new Headers();
-    h.set('Content-Type', 'text/html; charset=utf-8');
-    h.set('Cache-Control', 'no-store');
-    h.set('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'self'");
-    return new Response('<!doctype html>\n<html>\n<head>\n<title>WallOfBricks</title>\n</head>\n<body style=margin:0;background:transparent></body>\n</html>', { status: 200, headers: h });
-}
 
 async function buildCtx(req, env, db, url, method) {
     const cookies = parseCookies(req);
