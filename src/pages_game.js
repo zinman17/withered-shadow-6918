@@ -100,6 +100,7 @@ async function play(ctx) {
         '<div id="GameLoading"><p>Loading</p></div>\n' +
         '<div id="GameError"><div id="GameErrorBox"><p id="GameErrorText"></p><p><a href="game?id=' + Number(g.id) + '">Back</a></p></div></div>\n' +
         '<button id="ExitButton" type="button">Exit</button>\n' +
+        '<button id="ResetButton" type="button">Reset</button>\n' +
         '<div id="HealthBox">\n<div id="HealthBar"><div id="HealthFill"></div></div>\n</div>\n' +
         '<div id="PlayerList"><div id="PlayerListHead">Players</div><ul id="PlayerRows"></ul></div>\n' +
         '<div id="Hotbar"></div>\n' +

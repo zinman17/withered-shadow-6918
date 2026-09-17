@@ -31,6 +31,17 @@
         window.location.href = 'game.php?id=' + GAME_ID;
     });
 
+    const resetButton = document.getElementById('ResetButton');
+    if (resetButton) {
+        resetButton.addEventListener('click', function (ev) {
+            ev.stopPropagation();
+            resetButton.blur();
+            if (E && E.hitApply && E.deathActive && E.deathActive() !== 1) {
+                E.hitApply(1000);
+            }
+        });
+    }
+
     const TOUCH = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
     if (TOUCH) {
         root.classList.add('Touch');

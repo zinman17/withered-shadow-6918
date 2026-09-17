@@ -92,6 +92,28 @@ html, body {
     z-index: 20;
 }
 
+#ResetButton {
+    position: fixed;
+    top: 0;
+    left: 110px;
+    width: 110px;
+    height: 20px;
+    background: rgba(120, 120, 120, 0.7);
+    border: 0;
+    outline: none;
+    color: #ffffff;
+    font-family: 'Comic Neue', Verdana, Arial, sans-serif;
+    font-size: 11px;
+    line-height: 20px;
+    padding: 0 6px;
+    cursor: pointer;
+    z-index: 20;
+}
+
+#ResetButton:hover {
+    background: rgba(196, 40, 28, 0.8);
+}
+
 #TouchControls {
     --ts: 0.62;
     display: none;
