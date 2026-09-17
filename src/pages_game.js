@@ -28,6 +28,29 @@ function cleanImgPath(v) {
     return /^assets\/[A-Za-z0-9_\-\/]+\.(png|jpg|jpeg|gif|webp)$/.test(s) ? s : '';
 }
 
+function splitRy(code) {
+    const lines = String(code || '').split('\n');
+    const kept = [];
+    let ry = 0;
+    for (const line of lines) {
+        const m = /^ry:(-?\d+(?:\.\d+)?)$/.exec(line.trim());
+        if (m) {
+            const v = parseFloat(m[1]);
+            if (isFinite(v) && v !== 0) { ry = v; }
+        } else if (line.trim() !== '' || kept.length > 0) {
+            kept.push(line);
+        }
+    }
+    return { code: kept.join('\n').replace(/\n+$/, ''), ry: ry };
+}
+
+function joinRy(code, ry) {
+    const c = String(code || '').replace(/\n+$/, '');
+    const r = Number(ry) || 0;
+    if (r === 0) { return c; }
+    return (c === '' ? 'ry:' + r : c + '\nry:' + r);
+}
+
 async function play(ctx) {
     const id = getInt(ctx.url, 'id');
     if (id === null) { return ctx.redirect('games'); }
@@ -45,9 +68,10 @@ async function play(ctx) {
         }
     }
     const world = { me: me !== null ? String(me.username) : '', parts: [], remotes: [], scripts: [], tools: [], guis: [] };
-    const prs = await ctx.db.all("SELECT name, class, px, py, pz, sx, sy, sz, color, code FROM game_objects WHERE game_id = ? AND class IN ('Part', 'SpawnLocation') AND service = 'Workspace' AND name <> 'Handle' ORDER BY id", [id]);
+    const prs = await ctx.db.all("SELECT name, class, px, py, pz, sx, sy, sz, color, anchored, code FROM game_objects WHERE game_id = ? AND class IN ('Part', 'SpawnLocation') AND service = 'Workspace' AND name <> 'Handle' ORDER BY id", [id]);
     for (const p of prs) {
-        world.parts.push({ name: String(p.name), sc: String(p.class) === 'SpawnLocation' ? 1 : 0, px: Number(p.px), py: Number(p.py), pz: Number(p.pz), sx: Number(p.sx), sy: Number(p.sy), sz: Number(p.sz), color: hex6(p.color, 'A3A2A5') });
+        const parsed = splitRy(p.code);
+        world.parts.push({ name: String(p.name), sc: String(p.class) === 'SpawnLocation' ? 1 : 0, px: Number(p.px), py: Number(p.py), pz: Number(p.pz), sx: Number(p.sx), sy: Number(p.sy), sz: Number(p.sz), color: hex6(p.color, 'A3A2A5'), anchored: Number(p.anchored) === 1, ry: parsed.ry });
     }
     const trs = await ctx.db.all("SELECT name, service, px, py, pz, sx, sy, sz, color, code FROM game_objects WHERE game_id = ? AND class = 'Part' AND name = 'Handle' ORDER BY id LIMIT 9", [id]);
     for (const t of trs) {
@@ -112,7 +136,7 @@ async function studio(ctx) {
         '<span class="SMenu"><span class="SMenuLabel">View</span>\n<span class="SDrop">\n<span class="SItem" data-act="view-explorer">Explorer</span>\n<span class="SItem" data-act="view-properties">Properties</span>\n<span class="SItem" data-act="view-output">Output</span>\n<span class="SSep"></span>\n<span class="SItem" data-act="view-gui">ScreenGui</span>\n</span>\n</span>\n' +
         '<span class="SMenu"><span class="SMenuLabel">Help</span>\n<span class="SDrop">\n<span class="SItem" data-act="help">Open Help Page</span>\n</span>\n</span>\n' +
         '<span id="StudioPlaceName">' + esc(g.name) + '</span>\n</div>\n' +
-        '<div id="StudioToolbar">\n<button id="ToolSelect" class="STool SToolOn" type="button">Select</button>\n<button id="ToolMove" class="STool" type="button">Move</button>\n<button id="ToolResize" class="STool" type="button">Resize</button>\n<span class="TSep"></span>\n<button id="BtnPlay" class="STool" type="button">Play</button>\n<button id="BtnSave" class="STool" type="button">Save</button>\n<button id="BtnDelete" class="STool" type="button">Delete</button>\n<button id="BtnSnap" class="STool" type="button">Snap 0.5</button>\n<span class="TSep"></span>\n<span id="SaveState" class="SSaved">Saved</span>\n</div>\n' +
+        '<div id="StudioToolbar">\n<button id="ToolSelect" class="STool SToolOn" type="button">Select</button>\n<button id="ToolMove" class="STool" type="button">Move</button>\n<button id="ToolResize" class="STool" type="button">Resize</button>\n<button id="ToolRotate" class="STool" type="button">Rotate</button>\n<span class="TSep"></span>\n<button id="BtnPlay" class="STool" type="button">Play</button>\n<button id="BtnSave" class="STool" type="button">Save</button>\n<button id="BtnDelete" class="STool" type="button">Delete</button>\n<button id="BtnSnap" class="STool" type="button">Snap 0.5</button>\n<span class="TSep"></span>\n<span id="SaveState" class="SSaved">Saved</span>\n</div>\n' +
         '<div id="StudioMain">\n<div id="StudioCenter">\n<div id="StudioViewport"></div>\n<div id="StudioBottom">\n<div id="ScriptPane" class="Hidden">\n<div id="ScriptTabs"></div>\n<textarea id="ScriptCode" spellcheck="false" wrap="off"></textarea>\n</div>\n<div id="OutputPane">\n<div class="PaneTitle">Output</div>\n<div id="OutputLines"></div>\n</div>\n</div>\n</div>\n' +
         '<div id="StudioSide">\n<div id="ExplorerPane">\n<div class="PaneTitle">Explorer</div>\n<div id="ExplorerTree"></div>\n</div>\n<div id="PropertiesPane">\n<div class="PaneTitle">Properties</div>\n<div id="PropertyRows"></div>\n</div>\n<div id="GuiPane" class="Hidden">\n<div class="PaneTitle">ScreenGui</div>\n<div id="GuiRows"></div>\n<div id="GuiFields"></div>\n</div>\n</div>\n</div>\n' +
         '<div id="StudioStatus">\n<span id="StatusLeft">Ready</span>\n<span id="StatusRight">WallOfBricks Studio</span>\n</div>\n</div>\n' +
@@ -181,7 +205,12 @@ async function apiStudio(ctx) {
                 if (nHandles >= 9) { continue; }
                 nHandles++;
             }
-            stmts.push({ sql: 'INSERT INTO game_objects (game_id, class, name, service, px, py, pz, sx, sy, sz, color, anchored, code, created) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', params: [id, cls, name, storeService, px, py, pz, sx, sy, sz, color, anchored, codeChars, nowSql()] });
+            let storeCode = codeChars;
+            if (name !== 'Handle' && (cls === 'Part' || cls === 'SpawnLocation')) {
+                const parsed = splitRy(codeChars);
+                storeCode = joinRy(parsed.code, cleanNum(o.ry, -360, 360, 0));
+            }
+            stmts.push({ sql: 'INSERT INTO game_objects (game_id, class, name, service, px, py, pz, sx, sy, sz, color, anchored, code, created) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', params: [id, cls, name, storeService, px, py, pz, sx, sy, sz, color, anchored, storeCode, nowSql()] });
             nObjects++;
         }
         let nScripts = 0;
@@ -205,7 +234,8 @@ async function apiStudio(ctx) {
     const rows = await ctx.db.all('SELECT class, name, service, px, py, pz, sx, sy, sz, color, anchored, code FROM game_objects WHERE game_id = ? ORDER BY id', [id]);
     const objects = [];
     for (const r of rows) {
-        objects.push({ class: String(r.class), name: String(r.name), service: String(r.service), px: Number(r.px), py: Number(r.py), pz: Number(r.pz), sx: Number(r.sx), sy: Number(r.sy), sz: Number(r.sz), color: cleanColor(r.color), anchored: Number(r.anchored) === 1, code: String(r.code || '') });
+        const parsed = splitRy(r.code);
+        objects.push({ class: String(r.class), name: String(r.name), service: String(r.service), px: Number(r.px), py: Number(r.py), pz: Number(r.pz), sx: Number(r.sx), sy: Number(r.sy), sz: Number(r.sz), color: cleanColor(r.color), anchored: Number(r.anchored) === 1, ry: parsed.ry, code: parsed.code });
     }
     const srows = await ctx.db.all('SELECT name, kind, service, code FROM game_scripts WHERE game_id = ? ORDER BY id', [id]);
     const scripts = [];

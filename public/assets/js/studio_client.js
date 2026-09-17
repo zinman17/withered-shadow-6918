@@ -27,6 +27,7 @@
     const toolSelectBtn = document.getElementById('ToolSelect');
     const toolMoveBtn = document.getElementById('ToolMove');
     const toolResizeBtn = document.getElementById('ToolResize');
+    const toolRotateBtn = document.getElementById('ToolRotate');
     const btnPlay = document.getElementById('BtnPlay');
     const btnSave = document.getElementById('BtnSave');
     const btnDelete = document.getElementById('BtnDelete');
@@ -561,6 +562,7 @@
         o.sx = E.stNum(i, 3);
         o.sy = E.stNum(i, 4);
         o.sz = E.stNum(i, 5);
+        o.ry = E.stNum(i, 6);
         o.color = hexStr(E.stColor(i));
         o.anchored = E.stAnchored(i) === 1;
         o.name = readName(i);
@@ -605,6 +607,10 @@
                     markDirty();
                 }
             }));
+            row = propRow('Rotation');
+            row.appendChild(vecWrap([
+                numInput(o.ry || 0, function (v) { o.ry = v; E.stSetNum(idx, 6, v); markDirty(); })
+            ]));
             row = propRow('Anchored');
             row.appendChild(checkInput(o.anchored, function (v) {
                 o.anchored = v;
@@ -744,7 +750,8 @@
             sy: E.stNum(idx, 4),
             sz: E.stNum(idx, 5),
             color: hexStr(E.stColor(idx)),
-            anchored: E.stAnchored(idx) === 1
+            anchored: E.stAnchored(idx) === 1,
+            ry: E.stNum(idx, 6)
         };
         objects[idx] = o;
         pick('part', o);
@@ -795,7 +802,7 @@
         };
         const nm = putStr(o.name);
         const sv = putStr(o.service);
-        const idx = E.stAdd(2, nm.p, nm.n, sv.p, sv.n, 0, 0, 0, 4, 1.2, 2, 0xA3A2A5, 1);
+        const idx = E.stAdd(2, nm.p, nm.n, sv.p, sv.n, 0, 0, 0, 4, 1.2, 2, 0xA3A2A5, 1, 0);
         objects[idx] = o;
         pick('part', o);
         renderTree();
@@ -873,7 +880,7 @@
 
     function payload() {
         const objs = objects.filter(function (o) { return !o.dead; }).map(function (o) {
-            return { class: o.class, name: o.name, service: o.service, px: o.px, py: o.py, pz: o.pz, sx: o.sx, sy: o.sy, sz: o.sz, color: o.color, anchored: o.anchored, code: o.code || '' };
+            return { class: o.class, name: o.name, service: o.service, px: o.px, py: o.py, pz: o.pz, sx: o.sx, sy: o.sy, sz: o.sz, color: o.color, anchored: o.anchored, ry: o.ry || 0, code: o.code || '' };
         });
         guiButtons.forEach(function (g) {
             objs.push({ class: 'GuiButton', name: g.name, service: 'Workspace', px: g.px, py: g.py, pz: 0, sx: g.sx, sy: g.sy, sz: 0, color: g.color, anchored: true, code: g.code || '' });
@@ -933,15 +940,17 @@
 
     function setTool(t) {
         tool = t;
-        E.stSetTool(t === 'select' ? 0 : (t === 'move' ? 1 : 2));
+        E.stSetTool(t === 'select' ? 0 : (t === 'move' ? 1 : (t === 'rotate' ? 3 : 2)));
         toolSelectBtn.className = 'STool' + (t === 'select' ? ' SToolOn' : '');
         toolMoveBtn.className = 'STool' + (t === 'move' ? ' SToolOn' : '');
         toolResizeBtn.className = 'STool' + (t === 'resize' ? ' SToolOn' : '');
+        toolRotateBtn.className = 'STool' + (t === 'rotate' ? ' SToolOn' : '');
     }
 
     toolSelectBtn.addEventListener('click', function () { setTool('select'); });
     toolMoveBtn.addEventListener('click', function () { setTool('move'); });
     toolResizeBtn.addEventListener('click', function () { setTool('resize'); });
+    toolRotateBtn.addEventListener('click', function () { setTool('rotate'); });
     btnPlay.addEventListener('click', playPlace);
     btnSave.addEventListener('click', function () { save(); });
     btnDelete.addEventListener('click', deleteSelected);
@@ -1288,7 +1297,7 @@
                 const cls = o.class === 'RemoteEvent' ? 2 : (o.class === 'SpawnLocation' ? 1 : 0);
                 const nm = putStr(String(o.name));
                 const sv = putStr(String(o.service));
-                const idx = E.stAdd(cls, nm.p, nm.n, sv.p, sv.n, Number(o.px) || 0, Number(o.py) || 0, Number(o.pz) || 0, Number(o.sx) || 4, Number(o.sy) || 1.2, Number(o.sz) || 2, hexInt(o.color, 0xA3A2A5), o.anchored ? 1 : 0);
+                const idx = E.stAdd(cls, nm.p, nm.n, sv.p, sv.n, Number(o.px) || 0, Number(o.py) || 0, Number(o.pz) || 0, Number(o.sx) || 4, Number(o.sy) || 1.2, Number(o.sz) || 2, hexInt(o.color, 0xA3A2A5), o.anchored ? 1 : 0, Number(o.ry) || 0);
                 objects[idx] = {
                     key: nextKey(),
                     class: classStr(cls),
@@ -1302,6 +1311,7 @@
                     sz: Number(o.sz) || 2,
                     color: String(o.color),
                     anchored: !!o.anchored,
+                    ry: Number(o.ry) || 0,
                     code: String(o.code || '')
                 };
                 if (objects[idx].code !== '') {

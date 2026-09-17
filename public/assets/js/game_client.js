@@ -1115,6 +1115,26 @@ __Boot()
                     geos.push({ pos: pos, nor: nor, idx: idx });
                     total += idx ? idx.length : pos.length;
                 }
+                let bnx = 1e9;
+                let bny = 1e9;
+                let bnz = 1e9;
+                let bxx = -1e9;
+                let bxy = -1e9;
+                let bxz = -1e9;
+                for (let p = 0; p < geos.length; p++) {
+                    const gp = geos[p].pos;
+                    for (let v = 0; v < gp.length; v++) {
+                        const p3 = gp[v];
+                        if (p3[0] < bnx) { bnx = p3[0]; }
+                        if (p3[0] > bxx) { bxx = p3[0]; }
+                        if (p3[1] < bny) { bny = p3[1]; }
+                        if (p3[1] > bxy) { bxy = p3[1]; }
+                        if (p3[2] < bnz) { bnz = p3[2]; }
+                        if (p3[2] > bxz) { bxz = p3[2]; }
+                    }
+                }
+                const cen = [(bnx + bxx) / 2, (bny + bxy) / 2, (bnz + bxz) / 2];
+                const he = [Math.max(0.25, (bxx - bnx) / 2), Math.max(0.25, (bxy - bny) / 2), Math.max(0.25, (bxz - bnz) / 2)];
                 const arr = new Float32Array(total * 6);
                 let o = 0;
                 for (let p = 0; p < geos.length; p++) {
@@ -1133,7 +1153,7 @@ __Boot()
                         o += 6;
                     }
                 }
-                AV.limbs.push({ tint: tintOf[n.name], joint: skin.joints[ji], inv: skin.inv[ji], mesh: GL.upload(arr, 6) });
+                AV.limbs.push({ tint: tintOf[n.name], joint: skin.joints[ji], inv: skin.inv[ji], mesh: GL.upload(arr, 6), cen: cen, he: he });
                 if (n.name === 'Torso') {
                     let sx = 0;
                     let sy = 0;
@@ -1273,17 +1293,25 @@ __Boot()
 
     function drawPieces(cam) {
         const groups = Math.min(E.piecesCount(), 18);
-        if (groups < 1) {
-            return;
-        }
+        const now = performance.now() / 1000;
         syncMem();
         const mats = new Float32Array(E.memory.buffer, E.piecesMatPtr(), groups * 6 * 16);
         const cols = new Float32Array(E.memory.buffer, E.piecesColPtr(), groups * 6 * 4);
-        const now = performance.now() / 1000;
+        if (DEATH.on && !(groups > 0 && mats[13] === -2)) {
+            DEATH.on = false;
+        }
         for (let g = 0; g < groups; g++) {
             const base = g * 6;
             const st = mats[base * 16 + 13];
-            if (st < 0) {
+            if (base === 0 && st === -2) {
+                if (!DEATH.on) {
+                    DEATH.on = true;
+                    captureDeath(mats, cols, now);
+                    spawnDeathParts(now);
+                }
+            } else if (st === -2) {
+                continue;
+            } else if (st < 0) {
                 pieceModel(modelBuf, mats, base * 16);
                 const co = base * 4;
                 const tint = [cols[co], cols[co + 1], cols[co + 2], 1];
@@ -1303,6 +1331,241 @@ __Boot()
             } else {
                 drawAvatar(cam, base, st, mats, cols, now);
             }
+        }
+        drawDeathParts(cam, now);
+    }
+
+    const DEATH = { on: false, phys: false, cols: null, limbs: [], parts: [] };
+    const deathMat = new Float32Array(16);
+    const deathTmpA = new Float32Array(16);
+    const deathTmpB = new Float32Array(16);
+
+    function matToQuat(m, out) {
+        const tr = m[0] + m[5] + m[10];
+        let s;
+        if (tr > 0) {
+            s = Math.sqrt(tr + 1) * 2;
+            out[3] = s / 4;
+            out[0] = (m[9] - m[6]) / s;
+            out[1] = (m[2] - m[8]) / s;
+            out[2] = (m[4] - m[1]) / s;
+        } else if (m[0] > m[5] && m[0] > m[10]) {
+            s = Math.sqrt(1 + m[0] - m[5] - m[10]) * 2;
+            out[3] = (m[9] - m[6]) / s;
+            out[0] = s / 4;
+            out[1] = (m[1] + m[4]) / s;
+            out[2] = (m[2] + m[8]) / s;
+        } else if (m[5] > m[10]) {
+            s = Math.sqrt(1 + m[5] - m[0] - m[10]) * 2;
+            out[3] = (m[2] - m[8]) / s;
+            out[0] = (m[1] + m[4]) / s;
+            out[1] = s / 4;
+            out[2] = (m[6] + m[9]) / s;
+        } else {
+            s = Math.sqrt(1 + m[10] - m[0] - m[5]) * 2;
+            out[3] = (m[4] - m[1]) / s;
+            out[0] = (m[2] + m[8]) / s;
+            out[1] = (m[6] + m[9]) / s;
+            out[2] = s / 4;
+        }
+    }
+
+    function quatToMat(q, out) {
+        const x = q[0];
+        const y = q[1];
+        const z = q[2];
+        const w = q[3];
+        const x2 = x + x;
+        const y2 = y + y;
+        const z2 = z + z;
+        const xx = x * x2;
+        const xy = x * y2;
+        const xz = x * z2;
+        const yy = y * y2;
+        const yz = y * z2;
+        const zz = z * z2;
+        const wx = w * x2;
+        const wy = w * y2;
+        const wz = w * z2;
+        out[0] = 1 - (yy + zz);
+        out[1] = xy + wz;
+        out[2] = xz - wy;
+        out[3] = 0;
+        out[4] = xy - wz;
+        out[5] = 1 - (xx + zz);
+        out[6] = yz + wx;
+        out[7] = 0;
+        out[8] = xz + wy;
+        out[9] = yz - wx;
+        out[10] = 1 - (xx + yy);
+        out[11] = 0;
+        out[12] = 0;
+        out[13] = 0;
+        out[14] = 0;
+        out[15] = 1;
+    }
+
+    function captureDeath(mats, cols, now) {
+        if (!AV.ready) {
+            return;
+        }
+        const yaw = Math.atan2(mats[6], mats[4]);
+        const cxx = mats[10];
+        const cyy = mats[11];
+        const czz = mats[12];
+        const a = Math.cos(yaw);
+        const b = Math.sin(yaw);
+        const bx = AV.bct[0];
+        const by = AV.bct[1];
+        const bz = AV.bct[2];
+        rootMat[0] = a;
+        rootMat[1] = 0;
+        rootMat[2] = -b;
+        rootMat[3] = 0;
+        rootMat[4] = 0;
+        rootMat[5] = 1;
+        rootMat[6] = 0;
+        rootMat[7] = 0;
+        rootMat[8] = b;
+        rootMat[9] = 0;
+        rootMat[10] = a;
+        rootMat[11] = 0;
+        rootMat[12] = cxx - (a * bx + b * bz);
+        rootMat[13] = cyy - by;
+        rootMat[14] = czz - (b * bx - a * bz);
+        rootMat[15] = 1;
+        animReset();
+        animApply(AV.clips.Idle, now, -1);
+        for (let i = 0; i < AV.nodes.length; i++) {
+            nodeLocal(AV.nodes[i], AV.nodes[i].local);
+        }
+        nodeWorlds(rootMat);
+        DEATH.cols = new Float32Array(cols.slice(0, 24));
+        DEATH.limbs = [];
+        for (let i = 0; i < AV.limbs.length; i++) {
+            const lb = AV.limbs[i];
+            const W = matInto(AV.nodes[lb.joint].world, lb.inv, new Float32Array(16));
+            const cen = lb.cen;
+            const L = {
+                mesh: lb.mesh,
+                tint: lb.tint,
+                W: W,
+                cen: cen,
+                he: lb.he,
+                p0: [W[0] * cen[0] + W[4] * cen[1] + W[8] * cen[2] + W[12], W[1] * cen[0] + W[5] * cen[1] + W[9] * cen[2] + W[13], W[2] * cen[0] + W[6] * cen[1] + W[10] * cen[2] + W[14]],
+                q0: [0, 0, 0, 1]
+            };
+            matToQuat(W, L.q0);
+            DEATH.limbs.push(L);
+        }
+    }
+
+    function spawnDeathParts(now) {
+        if (!PHYS || !AV.ready || DEATH.limbs.length < 1) {
+            return;
+        }
+        const R = PHYS.R;
+        const ox = E.deathXGet();
+        const oy = E.deathYGet() + 3.1;
+        const oz = E.deathZGet();
+        for (let i = 0; i < DEATH.limbs.length; i++) {
+            const L = DEATH.limbs[i];
+            let body;
+            try {
+                body = PHYS.world.createRigidBody(
+                    R.RigidBodyDesc.dynamic()
+                        .setTranslation(L.p0[0], L.p0[1], L.p0[2])
+                        .setRotation({ x: L.q0[0], y: L.q0[1], z: L.q0[2], w: L.q0[3] })
+                        .setCcdEnabled(true)
+                        .setLinearDamping(0.22)
+                        .setAngularDamping(0.8)
+                );
+                const collider = PHYS.world.createCollider(
+                    R.ColliderDesc.cuboid(L.he[0], L.he[1], L.he[2])
+                        .setFriction(0.6)
+                        .setRestitution(0.2)
+                        .setDensity(0.3),
+                    body
+                );
+                collider.userData = { cosmetic: true };
+            } catch (err) {
+                break;
+            }
+            quatToMat(L.q0, deathTmpA);
+            for (let r = 0; r < 3; r++) {
+                for (let c = 0; c < 4; c++) {
+                    deathTmpB[c * 4 + r] = deathTmpA[c * 4 + r];
+                }
+            }
+            deathTmpB[12] = -(deathTmpA[0] * L.p0[0] + deathTmpA[4] * L.p0[1] + deathTmpA[8] * L.p0[2]);
+            deathTmpB[13] = -(deathTmpA[1] * L.p0[0] + deathTmpA[5] * L.p0[1] + deathTmpA[9] * L.p0[2]);
+            deathTmpB[14] = -(deathTmpA[2] * L.p0[0] + deathTmpA[6] * L.p0[1] + deathTmpA[10] * L.p0[2]);
+            deathTmpB[15] = 1;
+            const local = matInto(deathTmpB, L.W, new Float32Array(16));
+            const mass = Math.max(0.05, body.mass());
+            let dx = L.p0[0] - ox;
+            let dz = L.p0[2] - oz;
+            const dl = Math.hypot(dx, dz);
+            if (dl < 0.1) {
+                const ang = Math.random() * Math.PI * 2;
+                dx = Math.sin(ang);
+                dz = Math.cos(ang);
+            } else {
+                dx /= dl;
+                dz /= dl;
+            }
+            const spread = 0.55 + Math.random() * 0.6;
+            const side = dx * -dz;
+            body.applyImpulse({
+                x: (dx * 7 + dz * side * 3) * spread * mass,
+                y: (5 + Math.random() * 6) * mass,
+                z: (dz * 7 - dx * side * 3) * spread * mass
+            }, true);
+            body.applyTorqueImpulse({
+                x: (Math.random() - 0.5) * 7 * mass,
+                y: (Math.random() - 0.5) * 7 * mass,
+                z: (Math.random() - 0.5) * 7 * mass
+            }, true);
+            DEATH.parts.push({ body: body, mesh: L.mesh, tint: L.tint, local: local, born: now });
+        }
+        DEATH.limbs = [];
+    }
+
+    function drawDeathParts(cam, now) {
+        if (DEATH.parts.length < 1) {
+            return;
+        }
+        for (let i = DEATH.parts.length - 1; i >= 0; i--) {
+            const P = DEATH.parts[i];
+            if (now - P.born > 4.5) {
+                try {
+                    PHYS.world.removeRigidBody(P.body);
+                } catch (err) { }
+                DEATH.parts.splice(i, 1);
+                continue;
+            }
+            const p = P.body.translation();
+            const q = P.body.rotation();
+            deathTmpA[0] = 1 - 2 * (q.y * q.y + q.z * q.z);
+            deathTmpA[1] = 2 * (q.x * q.y + q.w * q.z);
+            deathTmpA[2] = 2 * (q.x * q.z - q.w * q.y);
+            deathTmpA[3] = 0;
+            deathTmpA[4] = 2 * (q.x * q.y - q.w * q.z);
+            deathTmpA[5] = 1 - 2 * (q.x * q.x + q.z * q.z);
+            deathTmpA[6] = 2 * (q.y * q.z + q.w * q.x);
+            deathTmpA[7] = 0;
+            deathTmpA[8] = 2 * (q.x * q.z + q.w * q.y);
+            deathTmpA[9] = 2 * (q.y * q.z - q.w * q.x);
+            deathTmpA[10] = 1 - 2 * (q.x * q.x + q.y * q.y);
+            deathTmpA[11] = 0;
+            deathTmpA[12] = p.x;
+            deathTmpA[13] = p.y;
+            deathTmpA[14] = p.z;
+            deathTmpA[15] = 1;
+            matInto(deathTmpA, P.local, deathMat);
+            const co = P.tint * 4;
+            const c = DEATH.cols;
+            GL.drawMesh(P.mesh, { cam: cam, model: deathMat, color: [c[co], c[co + 1], c[co + 2], 1] });
         }
     }
 
@@ -1807,6 +2070,15 @@ __Boot()
                 PHYS.place(ME, [rp[0], rp[1], rp[2]]);
             }
         }
+        const dead = E.deathActive();
+        if (dead === 1 && !DEATH.phys) {
+            DEATH.phys = true;
+            PHYS.setDead(ME, true);
+        } else if (dead === 0 && DEATH.phys) {
+            DEATH.phys = false;
+            const rp = readPlayer();
+            PHYS.place(ME, [rp[0], rp[1], rp[2]]);
+        }
         const pp = ME.body.translation();
         E.extPlayer(pp.x, pp.y, pp.z, ME.yaw, stateInt(ME.state));
         const pst = PHYS.parts.snapshot(false);
@@ -1820,7 +2092,6 @@ __Boot()
     }
 
     let phAcc = 0;
-
     window.addEventListener('keydown', function (ev) {
         if (!E) {
             return;
@@ -2179,9 +2450,9 @@ __Boot()
 
     async function bootPhysics() {
         try {
-            const rap = await import('assets/js/rapier.js');
+            const rap = await import('./rapier.js');
             await rap.init();
-            const phMod = await import('assets/js/physics.js');
+            const phMod = await import('./physics.js');
             const phParts = [];
             phParts[0] = { p: [0, -2, 0], q: [0, 0, 0, 1], s: [512, 4, 512], shape: 1, solid: true, anchored: true };
             const phSpawns = [];
@@ -2193,7 +2464,8 @@ __Boot()
                 const sx = Number(p.sx) || 4;
                 const sy = Number(p.sy) || 1.2;
                 const sz = Number(p.sz) || 2;
-                phParts[i + 1] = { p: [px, py, pz], q: [0, 0, 0, 1], s: [sx, sy, sz], shape: 1, solid: true, anchored: true };
+                const ry = (Number(p.ry) || 0) * Math.PI / 180;
+                phParts[i + 1] = { p: [px, py, pz], q: [0, Math.sin(ry / 2), 0, Math.cos(ry / 2)], s: [sx, sy, sz], shape: 1, solid: true, anchored: p.anchored !== false };
                 if (Number(p.sc) === 1) {
                     phSpawns.push([px, py + sy / 2 + 0.1, pz]);
                 }
@@ -2203,9 +2475,17 @@ __Boot()
             }
             PHYS = new phMod.Physics(rap, { parts: phParts, spawns: phSpawns, ladders: [] }, { authoritative: true });
             ME = PHYS.add('me');
+            for (let i = 1; i < phParts.length; i++) {
+                if (phParts[i].anchored === false) {
+                    PHYS.parts.activate(i);
+                }
+            }
             E.extPhysSet(1);
             const p0 = ME.body.translation();
             E.extPlayer(p0.x, p0.y, p0.z, 0, 0);
+            window.__wobPhys = function () {
+                return { phys: PHYS, me: ME, world: PHYS.world };
+            };
         } catch (err) {
             PHYS = null;
             ME = null;
@@ -2225,7 +2505,7 @@ __Boot()
             E.gameBegin();
             for (let i = 0; i < world.parts.length; i++) {
                 const p = world.parts[i];
-                E.worldAddPart(Number(p.px) || 0, Number(p.py) || 0, Number(p.pz) || 0, Number(p.sx) || 4, Number(p.sy) || 1.2, Number(p.sz) || 2, hexInt(p.color, 0xA3A2A5), Number(p.sc) || 0);
+                E.worldAddPart(Number(p.px) || 0, Number(p.py) || 0, Number(p.pz) || 0, Number(p.sx) || 4, Number(p.sy) || 1.2, Number(p.sz) || 2, hexInt(p.color, 0xA3A2A5), Number(p.sc) || 0, Number(p.ry) || 0);
             }
             for (let i = 0; i < world.remotes.length; i++) {
                 const r = world.remotes[i];
