@@ -1,6 +1,41 @@
-html
+@font-face
 {
-        background: #e3e3e3;
+        font-family: 'Comic Neue';
+        src: url('../fonts/ComicNeue-Regular.woff2') format('woff2'),
+             url('../fonts/ComicNeue-Regular.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+}
+
+@font-face
+{
+        font-family: 'Comic Neue';
+        src: url('../fonts/ComicNeue-Bold.woff2') format('woff2'),
+             url('../fonts/ComicNeue-Bold.ttf') format('truetype');
+        font-weight: bold;
+        font-style: normal;
+        font-display: swap;
+}
+
+@font-face
+{
+        font-family: 'Comic Neue';
+        src: url('../fonts/ComicNeue-Italic.woff2') format('woff2'),
+             url('../fonts/ComicNeue-Italic.ttf') format('truetype');
+        font-weight: normal;
+        font-style: italic;
+        font-display: swap;
+}
+
+@font-face
+{
+        font-family: 'Comic Neue';
+        src: url('../fonts/ComicNeue-BoldItalic.woff2') format('woff2'),
+             url('../fonts/ComicNeue-BoldItalic.ttf') format('truetype');
+        font-weight: bold;
+        font-style: italic;
+        font-display: swap;
 }
 
 html, body
@@ -11,262 +46,75 @@ html, body
 
 body
 {
-        font: normal 15px/1.5 'Source Sans Pro', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-        color: #393b3d;
+        font: normal 10pt/1.5 'Comic Neue', 'Comic Sans MS', Verdana, sans-serif;
+        color: #10151a;
         margin: 0;
         padding: 0 0 12px 0;
-        background: #e3e3e3;
+        background: #8ec3e8 url('../images/sky_wob.jpg') no-repeat fixed center top / cover;
 }
 
 h1, h2, h3, h4
 {
-        margin: 10px 0 8px 0;
-        font-weight: 700;
-        color: #393b3d;
-}
-
-h1
-{
-        font-size: 24px;
-}
-
-h2
-{
-        font-size: 20px;
-}
-
-h3
-{
-        font-size: 17px;
+        margin: 8px 0;
+        font-weight: bold;
 }
 
 a
 {
-        color: #0074bd;
+        color: #0000cc;
         text-decoration: none;
 }
 
-a:hover
+.bottombar a:hover, .Flash a:hover
 {
         text-decoration: underline;
-}
-
-#navigation-container
-{
-        position: relative;
 }
 
 .masthead
 {
         position: relative;
-        z-index: 100;
-        background: #dee1e3;
-        border-bottom: 1px solid #c7cbce;
-        min-height: 90px;
-        padding: 0 18px;
+        background: #aed0ee;
+        text-align: center;
+        overflow: hidden;
 }
 
-.masthead .container-fluid
-{
-        display: flex;
-        align-items: center;
-        min-height: 90px;
-        max-width: 1280px;
-        margin: 0 auto;
-        gap: 14px;
-}
-
-.rbx-navbar-header
-{
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        flex: none;
-}
-
-#header-menu-icon
-{
-        display: none;
-        background: none;
-        border: none;
-        padding: 8px;
-        margin: 0;
-        cursor: pointer;
-        line-height: 0;
-}
-
-.MenuLines
+.masthead .homelink
 {
         display: inline-block;
-}
-
-.MenuLines i
-{
-        display: block;
-        width: 20px;
-        height: 2px;
-        background: #393b3d;
-        margin: 4px 0;
-        border-radius: 1px;
-}
-
-.masthead .navbar-brand
-{
-        display: inline-flex;
-        align-items: center;
-        padding: 5px 0;
 }
 
 .masthead .logo
 {
-        height: 26px;
+        height: 84px;
+        margin: 6px 0;
         vertical-align: middle;
-}
-
-.rbx-navbar
-{
-        margin: 4px auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex: 1 1 auto;
-}
-
-.topsearch
-{
-        flex: 0 1 300px;
-        max-width: 300px;
-        margin: 0;
-}
-
-.topsearchbox
-{
-        width: 100%;
-        max-width: 300px;
-        box-sizing: border-box;
-        background: #f2f4f5;
-        border: 1px solid #f2f4f5;
-        border-radius: 8px;
-        color: #393b3d;
-        font: inherit;
-        font-size: 14px;
-        padding: 7px 14px;
-        outline: none;
-}
-
-.topsearchbox:focus
-{
-        border-color: #c7cbce;
-        background: #ffffff;
-}
-
-.rbx-navbar-right
-{
-        margin-left: auto;
-        margin-right: 12px;
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        flex: none;
-}
-
-.topauthslot
-{
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        white-space: nowrap;
-}
-
-.TopLogin
-{
-        color: #393b3d;
-        font-weight: 600;
-}
-
-.TopSignup, .navstrip .TopSignup
-{
-        display: inline-block;
-        background: #00b06f;
-        color: #ffffff;
-        border-radius: 8px;
-        font-weight: 600;
-        padding: 6px 16px;
-}
-
-.TopSignup:hover
-{
-        background: #009a61;
-        text-decoration: none;
-}
-
-.UserChip
-{
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        color: #393b3d;
-        font-weight: 600;
-}
-
-.UserChip:hover
-{
-        text-decoration: none;
-        color: #0074bd;
-}
-
-.UserTile
-{
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        background: #00b06f;
-        color: #ffffff;
-        font-size: 14px;
-        font-weight: 700;
-}
-
-.UserName
-{
-        max-width: 160px;
-        overflow: hidden;
-        text-overflow: ellipsis;
 }
 
 .navstrip
 {
         position: relative;
-        background: transparent;
-        border-bottom: none;
+        background: #00a2e3;
         text-align: center;
-        padding: 0;
-        min-height: 38px;
+        padding: 2px 0;
 }
 
 .navstrip a, .navstrip a:link, .navstrip a:visited, .navstrip a:active
 {
-        color: #393b3d;
+        color: #ffffff;
         text-decoration: none;
         display: inline-block;
-        padding: 6px 9px;
-        font-size: 16px;
-        font-weight: 600;
-        border-bottom: 2px solid transparent;
+        padding: 6px 12px;
+        font-size: 17px;
 }
 
 .navstrip a:hover
 {
-        color: #393b3d;
-        text-decoration: none;
-        border-bottom: 2px solid #393b3d;
+        text-decoration: underline;
 }
 
 .navstrip .pipe
 {
-        color: #cdcdcd;
+        color: #c9ecfb;
 }
 
 .navstrip button.linklike
@@ -275,44 +123,44 @@ a:hover
         border: none;
         padding: 0;
         margin: 0;
-        color: #393b3d;
+        color: #ffffff;
         font: inherit;
-        font-size: 14px;
-        font-weight: 600;
+        font-size: 17px;
         cursor: pointer;
         text-decoration: none;
 }
 
 .navstrip button.linklike:hover
 {
-        color: #0074bd;
-        text-decoration: none;
+        text-decoration: underline;
 }
 
 .navauth
 {
-        margin-left: 10px;
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
         white-space: nowrap;
 }
 
 .navauth a, .navauth a:link, .navauth a:visited, .navauth a:active
 {
-        color: #0074bd;
-        font-weight: 600;
-        font-size: 14px;
-        padding: 4px 6px;
+        color: #ffffff;
+        font-weight: bold;
+        font-size: 15px;
+        padding: 4px 8px;
 }
 
 .navauth .pipe
 {
-        color: #cdcdcd;
+        color: #c9ecfb;
 }
 
 .navauth button.linklike
 {
-        font-size: 14px;
-        font-weight: 600;
-        color: #0074bd;
+        font-size: 15px;
+        font-weight: bold;
 }
 
 .inlineform
@@ -323,77 +171,32 @@ a:hover
 
 .sitefoot
 {
-        background: #f2f4f5;
-        border-top: 1px solid #c7cbce;
         text-align: center;
-        color: #606162;
-        font-size: 12px;
-        margin: 34px 0 0 0;
-        padding: 20px 18px 26px 18px;
-}
-
-.sitefoot .footer
-{
-        max-width: 970px;
-        margin: 0 auto;
-}
-
-.sitefoot .footer-links
-{
-        padding-left: 0;
-        text-align: center;
-        margin: 20px auto 0 auto;
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: center;
-}
-
-.sitefoot .footer-link
-{
-        margin: 6px;
-        white-space: nowrap;
-}
-
-.sitefoot .text-footer-nav, .sitefoot .text-footer-nav:link, .sitefoot .text-footer-nav:visited
-{
-        color: #606162;
-        font-weight: 600;
-}
-
-.sitefoot .text-footer-nav:hover
-{
-        color: #393b3d;
-        text-decoration: none;
-}
-
-.sitefoot .footer-note
-{
-        text-align: center;
-        margin-top: 12px;
+        color: #1c3d5a;
+        font-size: 8.5pt;
+        margin: 22px 0 4px 0;
+        text-shadow: 0 1px 0 rgba(255, 255, 255, 0.65);
 }
 
 .bottombar
 {
         background: #ffffff;
-        border: none;
-        border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-        max-width: 970px;
-        margin: 18px auto 16px auto;
-        padding: 16px 22px;
+        border: 2px solid #000000;
+        max-width: 900px;
+        margin: 0 auto 16px auto;
+        padding: 12px 18px;
 }
 
 .panel
 {
-        padding: 16px 22px;
+        padding: 12px 18px;
         margin: 0 auto 16px auto;
 }
 
 .bottombar > h2:first-child, .bottombar > h3:first-child
 {
-        border-bottom: 1px solid #e3e3e3;
-        padding-bottom: 10px;
+        border-bottom: 1px solid #999999;
+        padding-bottom: 6px;
 }
 
 .center
@@ -404,39 +207,36 @@ a:hover
 .Button
 {
         cursor: pointer;
-        background-color: #ffffff;
-        border: solid 1px #b8b8b8;
-        border-radius: 8px;
-        color: #393b3d;
-        font-family: inherit;
-        font-size: 15px;
-        font-weight: 600;
-        padding: 7px 18px;
+        background-color: #ffd94a;
+        border: solid 1px #000000;
+        color: #101010;
+        font-family: 'Comic Neue', 'Comic Sans MS', Verdana, sans-serif;
+        font-size: 1em;
+        font-weight: bold;
+        padding: 4px 14px;
         text-decoration: none;
         display: inline-block;
 }
 
 .Button:hover
 {
-        background-color: #f5f5f5;
-        text-decoration: none;
-        color: #393b3d;
+        background-color: #ffe36e;
+        text-decoration: underline;
 }
 
 .ButtonPlay
 {
-        background-color: #00b06f;
-        border: none;
+        background-color: #1a9c3e;
+        border: solid 1px #0c5f24;
         color: #ffffff;
         min-width: 200px;
-        padding: 9px 20px;
-        font-size: 16px;
+        padding: 8px 18px;
+        font-size: 1.1em;
 }
 
 .ButtonPlay:hover
 {
-        background-color: #009a61;
-        color: #ffffff;
+        background-color: #22b04a;
 }
 
 .Buttons a.Button
@@ -446,68 +246,59 @@ a:hover
 
 .Label
 {
-        font-weight: 700;
+        font-weight: bold;
 }
 
 .Detail
 {
-        color: #757575;
+        color: #333333;
 }
 
 .DetailHighlighted
 {
-        font-weight: 700;
-        color: #008a56;
+        font-weight: bold;
+        color: #1B7F1B;
 }
 
 .Attention
 {
-        font-weight: 700;
-        color: #e2231a;
+        font-weight: bold;
+        color: #B00000;
 }
 
 .FormNotes
 {
-        color: #757575;
-        font-size: 12px;
+        color: #555555;
+        font-size: 8pt;
 }
 
 .FormLabel
 {
-        font-weight: 700;
+        font-weight: bold;
 }
 
 .Flash
 {
         background-color: #ffffff;
-        border: none;
-        border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-        max-width: 970px;
+        border: solid 2px #000000;
+        max-width: 900px;
         margin: 12px auto;
-        padding: 10px 14px;
+        padding: 6px 10px;
 }
 
 .Flash-err
 {
-        background-color: #fdeceb;
+        background-color: #f2d5d5;
 }
 
 input.Text, input.TextBox, select.DropDownList, textarea.MultilineTextBox
 {
         background-color: #ffffff;
-        border: solid 1px #b8b8b8;
-        border-radius: 8px;
-        color: #393b3d;
-        font-family: inherit;
-        font-size: 14px;
-        padding: 6px 10px;
-        outline: none;
-}
-
-input.Text:focus, input.TextBox:focus, select.DropDownList:focus, textarea.MultilineTextBox:focus
-{
-        border-color: #0074bd;
+        border: solid 1px #000000;
+        color: #000000;
+        font-family: 'Comic Neue', 'Comic Sans MS', Verdana, sans-serif;
+        font-size: 10pt;
+        padding: 2px 5px;
 }
 
 textarea.MultilineTextBox
@@ -523,7 +314,7 @@ textarea.MultilineTextBox
 
 .SearchBar input
 {
-        width: 220px;
+        width: 200px;
 }
 
 table.Grid
@@ -533,7 +324,7 @@ table.Grid
 
 table.Grid td
 {
-        padding: 12px 14px;
+        padding: 8px 10px;
         vertical-align: top;
         text-align: center;
 }
@@ -545,40 +336,25 @@ table.Rows
 
 table.Rows td
 {
-        padding: 3px 10px 3px 0;
+        padding: 2px 10px 2px 0;
         text-align: left;
 }
 
 .GameThumbnail img
 {
         width: 160px;
-        border: none;
-        border-radius: 8px;
-        display: inline-block;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-}
-
-.GameThumbnail:hover img
-{
-        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.22);
+        border: 1px solid #333333;
 }
 
 .GameDetails
 {
         text-align: left;
-        font-size: 12px;
-        color: #757575;
+        font-size: 8.5pt;
 }
 
 .GameName a
 {
-        font-weight: 700;
-        color: #393b3d;
-}
-
-.GameName a:hover
-{
-        color: #0074bd;
+        font-weight: bold;
 }
 
 .Pager
@@ -593,9 +369,9 @@ table.Rows td
 
 .Comment
 {
-        border-top: 1px solid #e3e3e3;
+        border-top: 1px solid #cccccc;
         margin-top: 8px;
-        padding-top: 8px;
+        padding-top: 6px;
         text-align: left;
 }
 
@@ -611,7 +387,7 @@ table.Rows td
 .SkinZoneLabel {
     display: inline-block;
     width: 56px;
-    font-weight: 700;
+    font-weight: bold;
     vertical-align: middle;
 }
 
@@ -623,8 +399,7 @@ table.Rows td
     display: inline-block;
     width: 20px;
     height: 20px;
-    border: 1px solid #b8b8b8;
-    border-radius: 4px;
+    border: 1px solid #666666;
     margin: 1px;
     cursor: pointer;
     vertical-align: middle;
@@ -635,7 +410,7 @@ table.Rows td
 }
 
 .SkinSwatch:has(input:checked) {
-    outline: 3px solid #0074bd;
+    outline: 3px solid #000000;
 }
 
 .SkinCustom {
@@ -660,8 +435,8 @@ table.Rows td
     width: 46px;
     height: 38px;
     margin: 0 auto;
-    border: 1px solid #b8b8b8;
-    border-radius: 10px;
+    border: 1px solid #333333;
+    border-radius: 13px;
 }
 
 .FigRow {
@@ -675,7 +450,7 @@ table.Rows td
     overflow: hidden;
     width: 17px;
     height: 52px;
-    border: 1px solid #b8b8b8;
+    border: 1px solid #333333;
     margin: 0 2px;
 }
 
@@ -683,7 +458,7 @@ table.Rows td
     position: relative;
     width: 48px;
     height: 52px;
-    border: 1px solid #b8b8b8;
+    border: 1px solid #333333;
     overflow: hidden;
 }
 
@@ -691,7 +466,7 @@ table.Rows td
     position: relative;
     width: 23px;
     height: 48px;
-    border: 1px solid #b8b8b8;
+    border: 1px solid #333333;
     margin: 0 1px;
     overflow: hidden;
 }
@@ -732,9 +507,7 @@ table.Rows td
 .PlaceThumb
 {
         max-width: 400px;
-        border: none;
-        border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        border: 1px solid #333333;
 }
 
 .BlurbText
@@ -761,71 +534,19 @@ table.Rows td
 
 .Commenter
 {
-        font-weight: 700;
+        font-weight: bold;
         margin-top: 8px;
-}
-
-@media (max-width: 970px)
-{
-        #header-menu-icon
-        {
-                display: inline-block;
-        }
-
-        .masthead .container-fluid
-        {
-                flex-wrap: wrap;
-                padding: 8px 0;
-                min-height: 62px;
-        }
-
-        .rbx-navbar.navstrip
-        {
-                display: none;
-                flex-basis: 100%;
-        }
-
-        #navigation-container.nav-open .rbx-navbar.navstrip
-        {
-                display: flex;
-                flex-wrap: wrap;
-        }
-
-        .topsearch
-        {
-                flex: 1 1 auto;
-        }
-
-        .rbx-navbar-right
-        {
-                margin-right: 0;
-        }
 }
 
 @media (max-width: 720px)
 {
-        .topsearch
-        {
-                order: 3;
-                flex-basis: 100%;
-                max-width: none;
-        }
-
-        .topauthslot
-        {
-                margin-left: auto;
-        }
-
         .navauth
         {
+                position: static;
                 display: block;
-                padding: 2px 0 8px 0;
+                transform: none;
+                padding: 2px 0 6px 0;
                 text-align: center;
                 white-space: normal;
-        }
-
-        .UserName
-        {
-                max-width: 90px;
         }
 }

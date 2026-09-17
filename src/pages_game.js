@@ -71,17 +71,17 @@ async function play(ctx) {
     }
     const v = CFG.assetVersion;
     const mpAttrs = me !== null ? ' data-mp="1" data-mpname="' + esc(me.username) + '" data-csrf="' + esc(auth.csrfToken(ctx.session)) + '"' : ' data-mp="0"';
-    const html = '<!doctype html>\n<html>\n<head>\n<meta charset="utf-8">\n<title>' + esc(g.name) + ' - WallOfBricks</title>\n<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">\n<meta name="mobile-web-app-capable" content="yes">\n<meta name="apple-mobile-web-app-capable" content="yes">\n<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">\n<link rel="preload" href="assets/js/wob_engine.wasm" as="fetch">\n<link rel="preload" href="assets/images/menu.png" as="image">\n<link rel="preload" href="assets/images/chat.png" as="image">\n<link rel="stylesheet" href="assets/css/game.css?v=' + v + '">\n</head>\n<body>\n' +
+    const html = '<!doctype html>\n<html>\n<head>\n<meta charset="utf-8">\n<title>' + esc(g.name) + ' - WallOfBricks</title>\n<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">\n<meta name="mobile-web-app-capable" content="yes">\n<meta name="apple-mobile-web-app-capable" content="yes">\n<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">\n<link rel="preload" href="assets/js/wob_engine.wasm" as="fetch">\n<link rel="stylesheet" href="assets/css/game.css?v=' + v + '">\n</head>\n<body>\n' +
         '<div id="GameClient" data-game="' + Number(g.id) + '" data-skin="' + esc(skin.head + ' ' + skin.torso + ' ' + skin.arms + ' ' + skin.legs) + '" data-world="' + esc(JSON.stringify(world)) + '"' + mpAttrs + '>\n' +
         '<div id="GameLoading"><p>Loading</p></div>\n' +
         '<div id="GameError"><div id="GameErrorBox"><p id="GameErrorText"></p><p><a href="game?id=' + Number(g.id) + '">Back</a></p></div></div>\n' +
-        '<div id="TopBar">\n<button id="MenuBtn" type="button" aria-label="Menu"><img src="assets/images/menu.png" alt="Menu" width="22" height="22"></button>\n<button id="ChatBtn" type="button" aria-label="Chat"><img src="assets/images/chat.png" alt="Chat" width="24" height="24"></button>\n<span id="TopBrand">WallOfBricks</span>\n<div id="HealthBox">\n<div id="HealthBar"><div id="HealthFill"></div></div>\n</div>\n</div>\n' +
-        '<div id="ChatPanel">\n<div id="ChatLog"></div>\n<form id="ChatForm" autocomplete="off"><input id="ChatBox" type="text" maxlength="120" placeholder="To chat click here or press slash key" autocomplete="off"><button id="ChatSend" type="submit">Send</button></form>\n</div>\n' +
+        '<button id="ExitButton" type="button">Exit</button>\n' +
+        '<div id="HealthBox">\n<div id="HealthBar"><div id="HealthFill"></div></div>\n</div>\n' +
         '<div id="PlayerList"><div id="PlayerListHead">Players</div><ul id="PlayerRows"></ul></div>\n' +
-        '<div id="Crosshair"></div>\n' +
         '<div id="Hotbar"></div>\n' +
         '<div id="GuiLayer"></div>\n' +
         '<div id="TouchControls">\n<div id="Thumbstick"><div id="ThumbKnob"></div></div>\n<button id="JumpButton" type="button" aria-label="Jump"></button>\n</div>\n' +
+        '<div id="MpChat"><div id="MpChatLog"></div><form id="MpChatForm" autocomplete="off"><input id="MpChatBox" type="text" maxlength="120" placeholder="Say something" autocomplete="off"><button id="MpChatSend" type="submit">Send</button></form></div>\n' +
         '</div>\n' +
         '<script src="assets/js/wob_gl.js?v=' + v + '"></script>\n<script src="assets/js/game_client.js?v=' + v + '"></script>\n</body>\n</html>';
     const headers = new Headers();

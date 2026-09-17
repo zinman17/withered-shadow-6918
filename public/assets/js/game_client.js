@@ -6,7 +6,7 @@
     const loadingEl = document.getElementById('GameLoading');
     const errorEl = document.getElementById('GameError');
     const errorText = document.getElementById('GameErrorText');
-    const menuButton = document.getElementById('MenuBtn');
+    const menuButton = document.getElementById('MenuBtn') || document.getElementById('ExitButton');
 
     function showError(msg) {
         if (errorText) {
@@ -1428,9 +1428,9 @@ __Boot()
 
     const chatPanel = document.getElementById('ChatPanel');
     const chatBtn = document.getElementById('ChatBtn');
-    const chatLog = document.getElementById('ChatLog');
-    const chatForm = document.getElementById('ChatForm');
-    const chatBox = document.getElementById('ChatBox');
+    const chatLog = document.getElementById('ChatLog') || document.getElementById('MpChatLog');
+    const chatForm = document.getElementById('ChatForm') || document.getElementById('MpChatForm');
+    const chatBox = document.getElementById('ChatBox') || document.getElementById('MpChatBox');
     let lastChatId = 0;
     if (chatPanel) {
         chatPanel.style.display = TOUCH ? 'none' : 'block';
@@ -1441,13 +1441,14 @@ __Boot()
             return;
         }
         const line = document.createElement('div');
-        line.className = 'ChatLine';
+        line.className = 'MpChatLine';
         const who = document.createElement('span');
-        who.className = 'ChatUser';
+        who.className = 'MpChatUser';
         who.textContent = String(u || '').slice(0, 24) + ': ';
         line.appendChild(who);
         line.appendChild(document.createTextNode(String(b || '').slice(0, 120)));
         chatLog.appendChild(line);
+        chatLog.style.display = 'block';
         while (chatLog.children.length > 30) {
             chatLog.removeChild(chatLog.firstChild);
         }
