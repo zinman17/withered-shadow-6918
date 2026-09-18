@@ -532,6 +532,56 @@ table.Rows td
         margin-top: 10px;
 }
 
+.CatTable
+{
+        margin: 10px auto;
+        border-collapse: collapse;
+        width: 100%;
+        max-width: 760px;
+}
+
+.CatTable td
+{
+        vertical-align: middle;
+        padding: 8px 10px;
+        border-bottom: 1px solid #d7dbe3;
+}
+
+.CatSwatch
+{
+        display: inline-block;
+        width: 46px;
+        height: 46px;
+        border: 2px solid #ffffff;
+        outline: 1px solid #635f62;
+}
+
+.CatPrice
+{
+        text-align: center;
+}
+
+.CatMoney
+{
+        font-size: 15px;
+}
+
+.CatOwned
+{
+        color: #4b974b;
+        font-weight: bold;
+}
+
+.MoneyStrip
+{
+        font-weight: bold;
+}
+
+.OwnSwatch
+{
+        outline: 1px dashed #635f62;
+}
+
 .Commenter
 {
         font-weight: bold;

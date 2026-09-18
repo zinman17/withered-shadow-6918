@@ -135,3 +135,28 @@ CREATE TABLE IF NOT EXISTS mp_hits (
     created_ms INTEGER NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_mph_to ON mp_hits (game_id, to_id, created_ms);
+
+CREATE TABLE IF NOT EXISTS currencies (
+    user_id INTEGER PRIMARY KEY REFERENCES users (id) ON DELETE CASCADE,
+    tix INTEGER NOT NULL DEFAULT 100,
+    brux INTEGER NOT NULL DEFAULT 25,
+    last_daily TEXT NOT NULL DEFAULT ''
+);
+
+CREATE TABLE IF NOT EXISTS catalog_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE,
+    zone TEXT NOT NULL DEFAULT 'torso',
+    hex TEXT NOT NULL,
+    price_tix INTEGER NOT NULL DEFAULT 0,
+    price_brux INTEGER NOT NULL DEFAULT 0,
+    description TEXT NOT NULL DEFAULT '',
+    created TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS inventory (
+    user_id INTEGER NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    item_id INTEGER NOT NULL REFERENCES catalog_items (id) ON DELETE CASCADE,
+    bought TEXT NOT NULL,
+    PRIMARY KEY (user_id, item_id)
+);

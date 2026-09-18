@@ -2,6 +2,7 @@ const { CFG, esc, strField, nowSql } = require('./kit');
 const auth = require('./auth');
 const L = require('./layout');
 const { requireLogin, page } = require('./pages_social');
+const currency = require('./currency');
 
 const PALETTE = ['C4281C', 'DA8541', 'F5CD30', '4B974B', '0D69AC', 'B4D2E4', 'F2F3F3', 'A3A2A5', '635F62', '1B2A35', '694028', 'CC8E69', 'E8BAC8', '7FBFAF'];
 const ZONES = { head: 'Head', torso: 'Torso', arms: 'Arms', legs: 'Legs' };
@@ -44,10 +45,23 @@ async function character(ctx) {
         }
     }
     let zonesHtml = '';
+    let mine = [];
+    try {
+        mine = await currency.owned(ctx.db, me.id);
+    } catch (e) {
+        mine = [];
+    }
     for (const zone of Object.keys(ZONES)) {
         let swatches = '';
         for (const hex of PALETTE) {
             swatches += '<label class="SkinSwatch Sw-' + hex + '" title="' + hex + '"><input type="radio" name="skin_' + zone + '" value="' + hex + '"' + (skin[zone] === hex ? ' checked' : '') + '></label>\n';
+        }
+        for (let i = 0; i < mine.length; i++) {
+            const item = mine[i];
+            if (String(item.zone) !== zone) { continue; }
+            const hex = String(item.hex).toUpperCase();
+            if (!/^[0-9A-F]{6}$/.test(hex)) { continue; }
+            swatches += '<label class="SkinSwatch OwnSwatch" style="background:#' + esc(hex) + '" title="' + esc(item.name) + '"><input type="radio" name="skin_' + zone + '" value="' + hex + '"' + (skin[zone] === hex ? ' checked' : '') + '></label>\n';
         }
         zonesHtml += '<div class="SkinZone">\n<span class="SkinZoneLabel">' + esc(ZONES[zone]) + '</span>\n<span class="SkinSwatches">\n' + swatches +
             '<span class="SkinCustom">Custom <input type="text" class="TextBox SkinHex" name="skinhex_' + zone + '" maxlength="7" placeholder="#000000"></span>\n</span>\n</div>\n';
@@ -62,7 +76,7 @@ async function character(ctx) {
         '<table class="CharTable">\n<tbody><tr valign="top">\n' + fig +
         '<td>\n<form method="post" action="character">\n' + L.csrfField(ctx) +
         '<h4>Body Colors</h4>\n' + zonesHtml +
-        '<p class="FormNotes">Click a color square for a body part. The Custom box takes a hex code like 0D69AC and beats the squares.</p>\n' +
+        '<p class="FormNotes">Click a color square for a body part. The Custom box takes a hex code like 0D69AC and beats the squares. Colors you buy from the Catalog show up here too.</p>\n' +
         '<p class="center"><button class="YesButton Button" type="submit" name="save_skin" value="1">Save Colors</button> <a class="NoButton Button" href="my">Back</a></p>\n</form>\n</td>\n</tr></tbody></table>\n</div>\n';
     return page(ctx, 'Character - WallOfBricks', body, '<script src="assets/js/character.js?v=' + CFG.assetVersion + '"></script>\n');
 }

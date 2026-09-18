@@ -6,6 +6,8 @@ const things = require('./pages_things');
 const game = require('./pages_game');
 const mp = require('./mp');
 const character = require('./pages_character');
+const catalog = require('./pages_catalog');
+const currency = require('./currency');
 const { esc } = require('./kit');
 
 function normPath(p) {
@@ -27,6 +29,8 @@ const ROUTES = [
     ['GET', '/my', social.my],
     ['GET', '/character', character.character],
     ['POST', '/character', character.character],
+    ['GET', '/catalog', catalog.catalog],
+    ['POST', '/catalog', catalog.catalog],
     ['GET', '/settings', social.settings],
     ['POST', '/settings', social.settings],
     ['GET', '/profile', social.profile],
@@ -61,6 +65,7 @@ async function buildCtx(req, env, db, url, method) {
         method: method,
         user: session ? session.user : null,
         session: session,
+        userMoney: null,
         ip: clientIp(req, env),
         secure: url.protocol === 'https:' || (req.headers.get('X-Forwarded-Proto') === 'https'),
         fields: {},
@@ -95,6 +100,13 @@ async function buildCtx(req, env, db, url, method) {
         session = await auth.loadSessionByToken(db, created.token);
         ctx.session = session;
         ctx.user = session ? session.user : null;
+    }
+    if (ctx.user !== null) {
+        try {
+            ctx.userMoney = await currency.balances(db, ctx.user.id);
+        } catch (e) {
+            ctx.userMoney = null;
+        }
     }
     return ctx;
 }

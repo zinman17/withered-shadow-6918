@@ -53,7 +53,8 @@ const db = {
 const MIME = {
     '.css': 'text/css', '.js': 'application/javascript', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
     '.webp': 'image/webp', '.gif': 'image/gif', '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.woff': 'font/woff',
-    '.ttf': 'font/ttf', '.ico': 'image/x-icon', '.glb': 'model/gltf-binary', '.html': 'text/html', '.wasm': 'application/wasm'
+    '.ttf': 'font/ttf', '.ico': 'image/x-icon', '.glb': 'model/gltf-binary', '.html': 'text/html', '.wasm': 'application/wasm',
+    '.mp3': 'audio/mpeg'
 };
 
 function serveStatic(pathname) {

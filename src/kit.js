@@ -1,6 +1,6 @@
 const CFG = {
     site: 'WallOfBricks',
-    assetVersion: '40',
+    assetVersion: '41',
     gamesPerPlayer: 3,
     loginMaxAttempts: 5,
     loginLockMinutes: 15,

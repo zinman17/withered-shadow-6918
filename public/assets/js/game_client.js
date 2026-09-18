@@ -42,6 +42,35 @@
         });
     }
 
+    const walkSnd = new Audio('assets/audio/walk.mp3');
+    walkSnd.loop = true;
+    walkSnd.volume = 0.4;
+    const jumpSnd = new Audio('assets/audio/jump.mp3');
+    jumpSnd.volume = 0.5;
+    window.__wobSnd = { walk: walkSnd, jump: jumpSnd };
+    function playJumpSnd() {
+        try {
+            jumpSnd.currentTime = 0;
+            jumpSnd.play();
+        } catch (e) { }
+    }
+    function unlockSnd() {
+        try {
+            const p = walkSnd.play();
+            if (p && p.then) {
+                p.then(function () {
+                    if (!walkingNow()) {
+                        walkSnd.pause();
+                        walkSnd.currentTime = 0;
+                    }
+                }).catch(function () { });
+            }
+        } catch (e) { }
+    }
+    window.addEventListener('pointerdown', unlockSnd, { once: true, passive: true });
+    window.addEventListener('keydown', unlockSnd, { once: true });
+    window.addEventListener('touchstart', unlockSnd, { once: true, passive: true });
+
     const TOUCH = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
     if (TOUCH) {
         root.classList.add('Touch');
@@ -2062,6 +2091,32 @@ __Boot()
         PHYS.input(ME, { x: dx, z: dz, j: keysDown[4] === true || jumpHeld });
     }
 
+    function walkingNow() {
+        if (!E) {
+            return false;
+        }
+        if (PHYS && ME) {
+            return ME.state === 'Walk' && ME.grounded === true;
+        }
+        return E.playerState() === 1;
+    }
+
+    function soundTick() {
+        if (!E) {
+            return;
+        }
+        try {
+            if (walkingNow()) {
+                if (walkSnd.paused) {
+                    walkSnd.play();
+                }
+            } else if (!walkSnd.paused) {
+                walkSnd.pause();
+                walkSnd.currentTime = 0;
+            }
+        } catch (err) { }
+    }
+
     function physFrame(dt) {
         if (!PHYS || !ME || !E) {
             return;
@@ -2073,12 +2128,14 @@ __Boot()
             PHYS.step();
             phAcc -= 1 / 60;
             n++;
-        }
-        for (let i = 0; i < PHYS.events.length; i++) {
-            if (PHYS.events[i].name === 'void') {
-                E.extVoid();
-                const rp = readPlayer();
-                PHYS.place(ME, [rp[0], rp[1], rp[2]]);
+            for (let i = 0; i < PHYS.events.length; i++) {
+                if (PHYS.events[i].name === 'void') {
+                    E.extVoid();
+                    const rp = readPlayer();
+                    PHYS.place(ME, [rp[0], rp[1], rp[2]]);
+                } else if (PHYS.events[i].name === 'jump') {
+                    playJumpSnd();
+                }
             }
         }
         const dead = E.deathActive();
@@ -2413,6 +2470,7 @@ __Boot()
         const dt = lastT === 0 ? 0.016 : Math.min(t - lastT, 0.1);
         lastT = t;
         physFrame(dt);
+        soundTick();
         const wasDirty = E.worldVersion() === 0;
         E.frame(dt, t);
         if (wasDirty) {

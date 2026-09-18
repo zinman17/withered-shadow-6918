@@ -2,11 +2,12 @@ const { CFG, esc, htmlReply, redirectReply, getParam, getInt, nowSql, todaySql, 
 const auth = require('./auth');
 const L = require('./layout');
 const H = require('./helpers');
+const currency = require('./currency');
 
 async function requireLogin(ctx, nextName) {
     if (ctx.user !== null) { return null; }
     await auth.setFlash(ctx.db, ctx.session, 'err', 'You need to log in to do that.');
-    const safe = ['my', 'games', 'people', 'game_new', 'character', 'studio'].indexOf(nextName) !== -1 ? nextName : 'my';
+    const safe = ['my', 'games', 'people', 'game_new', 'character', 'catalog', 'studio'].indexOf(nextName) !== -1 ? nextName : 'my';
     return ctx.redirect('login?next=' + encodeURIComponent(safe));
 }
 
@@ -22,7 +23,7 @@ function index(ctx) {
 async function login(ctx) {
     if (ctx.user !== null) { return ctx.redirect('my'); }
     let next = getParam(ctx.url, 'next') || 'my';
-    const okNext = ['my', 'games', 'people', 'game_new'];
+    const okNext = ['my', 'games', 'people', 'game_new', 'catalog'];
     if (okNext.indexOf(next) === -1 && !/^play\?id=\d{1,10}$/.test(next)) { next = 'my'; }
     let err = '';
     let name = strField(ctx.fields, 'username', 20);
@@ -57,7 +58,11 @@ async function login(ctx) {
                 ctx.setCookie(fresh.cookie);
                 ctx.session = await auth.loadSessionByToken(ctx.db, fresh.token);
                 await ctx.db.run('UPDATE users SET last_login = ? WHERE id = ?', [nowSql(), uid]);
-                await auth.setFlash(ctx.db, ctx.session, 'ok', 'You are logged in.');
+                let dailyMsg = '';
+                try {
+                    if (await currency.dailyCheck(ctx.db, uid)) { dailyMsg = ' Daily bonus: 10 Tix.'; }
+                } catch (e) { }
+                await auth.setFlash(ctx.db, ctx.session, 'ok', 'You are logged in.' + dailyMsg);
                 return ctx.redirect(next);
             }
         }

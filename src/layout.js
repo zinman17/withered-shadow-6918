@@ -13,6 +13,7 @@ function header(ctx, pageTitle) {
     let strip = '';
     strip += '<a href="' + (cur !== null ? 'my' : 'index') + '">My WallOfBricks</a> <span class="pipe">|</span> ';
     strip += '<a href="character">Character</a> <span class="pipe">|</span> ';
+    strip += '<a href="catalog">Catalog</a> <span class="pipe">|</span> ';
     strip += '<a href="games">Games</a> <span class="pipe">|</span> ';
     strip += '<a href="people">Browse</a> <span class="pipe">|</span> ';
     strip += '<a href="forum">Forum</a> <span class="pipe">|</span> ';
@@ -20,9 +21,13 @@ function header(ctx, pageTitle) {
     if (cur !== null) {
         strip += ' <span class="pipe">|</span> <a href="settings">My Account</a>';
     }
+    let money = '';
+    if (cur !== null && ctx.userMoney) {
+        money = '<span class="MoneyStrip">Brux: ' + Number(ctx.userMoney.brux) + ' <span class="pipe">|</span> Tix: ' + Number(ctx.userMoney.tix) + '</span> <span class="pipe">|</span> ';
+    }
     return '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<title>' + esc(pageTitle || CFG.site) + '</title>\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<link rel="stylesheet" href="assets/css/styles.css?v=' + CFG.assetVersion + '">\n<link rel="Shortcut Icon" type="image/png" href="assets/img/favicon.png">\n</head>\n<body>\n'
         + '<div class="masthead">\n<a class="homelink" href="' + home + '"><img class="logo" src="assets/images/wob_logo.png" alt="WallOfBricks"></a>\n</div>\n'
-        + '<div class="navstrip">\n<span class="navlinks">' + strip + '</span>\n<span class="navauth">' + auth + '</span>\n</div>\n'
+        + '<div class="navstrip">\n<span class="navlinks">' + strip + '</span>\n<span class="navauth">' + money + auth + '</span>\n</div>\n'
         + flashHtml(ctx);
 }
 
