@@ -1,7 +1,8 @@
 const CFG = {
     site: 'WallOfBricks',
-    assetVersion: '41',
+    assetVersion: '42',
     gamesPerPlayer: 3,
+    tixDaily: 10,
     loginMaxAttempts: 5,
     loginLockMinutes: 15,
     registerMaxPerDay: parseInt(typeof process !== 'undefined' && process.env && process.env.WOB_REG_PER_DAY ? process.env.WOB_REG_PER_DAY : '3', 10),
@@ -9,6 +10,7 @@ const CFG = {
     blurbMax: 1000,
     commentMax: 500,
     uploadImgMax: 1572864,
+    uploadMeshMax: 1572864,
     uploadsPerDay: 10,
     sessionTtlMs: 7 * 24 * 3600 * 1000,
     mpSyncMinMs: 150,

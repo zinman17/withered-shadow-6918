@@ -54,4 +54,10 @@ async function owned(db, userId) {
     return await db.all('SELECT c.id, c.name, c.zone, c.hex FROM inventory i JOIN catalog_items c ON c.id = i.item_id WHERE i.user_id = ? ORDER BY c.id', [userId]);
 }
 
-module.exports = { ensureSchema, balances, dailyCheck, owned };
+async function grant(db, userId, kind, amount) {
+    await balances(db, userId);
+    const col = kind === 'brux' ? 'brux' : 'tix';
+    await db.run('UPDATE currencies SET ' + col + ' = ' + col + ' + ? WHERE user_id = ?', [amount, userId]);
+}
+
+module.exports = { ensureSchema, balances, dailyCheck, owned, grant };

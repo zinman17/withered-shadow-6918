@@ -1,4 +1,5 @@
 const { CFG, esc, nowSql, todaySql } = require('./kit');
+const nodeCrypto = require('crypto');
 
 function num(n) {
     return Number(n || 0).toLocaleString('en-US');
@@ -28,6 +29,22 @@ function dateShort(dt) {
 
 function nl2br(v) {
     return esc(v).replace(/\r?\n/g, '<br>');
+}
+
+function itemIconUrl(it) {
+    const type = String(it.type || 'hat');
+    const file = String(it.file || '');
+    if (type === 'shirt' || type === 'pants') {
+        return 'assets/img/placeholder_' + type + '.png';
+    }
+    if (file !== '' && /\.(jpg|jpeg|png|webp)$/i.test(file) && /^img\//.test(file)) {
+        return 'uploads/' + file;
+    }
+    return 'assets/img/placeholder_' + type + '.png';
+}
+
+function isMeshFile(file) {
+    return /\.(obj|glb)$/i.test(String(file || ''));
 }
 
 function gameThumbUrl(g) {
@@ -104,10 +121,14 @@ function saveUpload(kind, file) {
     let exts = null;
     let max = 0;
     let sub = '';
-    if (kind === 'img') {
+    if (kind === 'img' || kind === 'cloth') {
         exts = imgExts;
         max = CFG.uploadImgMax;
-        sub = 'img';
+        sub = kind === 'cloth' ? 'cloth' : 'img';
+    } else if (kind === 'mesh') {
+        exts = { obj: 'text/plain', glb: 'model/gltf-binary' };
+        max = CFG.uploadMeshMax;
+        sub = 'mesh';
     } else {
         throw new Error('That file kind is not supported here.');
     }
@@ -119,12 +140,21 @@ function saveUpload(kind, file) {
     if (file.size < 1 || file.size > max || file.bytes.length !== file.size) {
         throw new Error('That file is empty or too big. The limit is ' + Math.round(max / 1048576) + ' MB.');
     }
-    const dim = imageDimensions(file.bytes, ext);
-    if (dim === null) { throw new Error('That is not a real picture file.'); }
-    if (dim.w < 16 || dim.h < 16 || dim.w > 4096 || dim.h > 4096) {
-        throw new Error('Pictures must be between 16 and 4096 pixels on each side.');
+    if (ext === 'glb') {
+        if (!startsWith(file.bytes, MAGIC_GLB)) { throw new Error('That is not a real glb file.'); }
+    } else if (ext === 'obj') {
+        let hasNul = false;
+        const head = file.bytes.subarray(0, Math.min(8192, file.bytes.length));
+        for (let i = 0; i < head.length; i++) { if (head[i] === 0) { hasNul = true; break; } }
+        if (hasNul) { throw new Error('That is not a real obj file.'); }
+    } else {
+        const dim = imageDimensions(file.bytes, ext);
+        if (dim === null) { throw new Error('That is not a real picture file.'); }
+        if (dim.w < 16 || dim.h < 16 || dim.w > 4096 || dim.h > 4096) {
+            throw new Error('Pictures must be between 16 and 4096 pixels on each side.');
+        }
     }
-    const name = sub + '/' + crypto.randomBytes(16).toString('hex') + '.' + ext;
+    const name = sub + '/' + nodeCrypto.randomBytes(16).toString('hex') + '.' + ext;
     return { name: name, mime: exts[ext], bytes: file.bytes };
 }
 
@@ -136,4 +166,6 @@ async function getFile(db, name) {
     return await db.get('SELECT name, mime, bytes FROM files WHERE name = ?', [name]);
 }
 
-module.exports = { num, ago, dateShort, nl2br, gameThumbUrl, hex6, saveUpload, storeFile, getFile, imageDimensions };
+const MAGIC_GLB = [0x67, 0x6c, 0x54, 0x46];
+
+module.exports = { num, ago, dateShort, nl2br, itemIconUrl, gameThumbUrl, isMeshFile, hex6, saveUpload, storeFile, getFile, imageDimensions };

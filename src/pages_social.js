@@ -7,7 +7,7 @@ const currency = require('./currency');
 async function requireLogin(ctx, nextName) {
     if (ctx.user !== null) { return null; }
     await auth.setFlash(ctx.db, ctx.session, 'err', 'You need to log in to do that.');
-    const safe = ['my', 'games', 'people', 'game_new', 'character', 'catalog', 'studio'].indexOf(nextName) !== -1 ? nextName : 'my';
+    const safe = ['my', 'games', 'people', 'game_new', 'character', 'catalog', 'item_new', 'colors', 'studio'].indexOf(nextName) !== -1 ? nextName : 'my';
     return ctx.redirect('login?next=' + encodeURIComponent(safe));
 }
 
@@ -23,7 +23,7 @@ function index(ctx) {
 async function login(ctx) {
     if (ctx.user !== null) { return ctx.redirect('my'); }
     let next = getParam(ctx.url, 'next') || 'my';
-    const okNext = ['my', 'games', 'people', 'game_new', 'catalog'];
+    const okNext = ['my', 'games', 'people', 'game_new', 'catalog', 'item_new', 'colors'];
     if (okNext.indexOf(next) === -1 && !/^play\?id=\d{1,10}$/.test(next)) { next = 'my'; }
     let err = '';
     let name = strField(ctx.fields, 'username', 20);
